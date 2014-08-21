@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx11.dtd">
+<tmx version="1.1">
+  <header
+    creationtool="OmegaT"
+    creationtoolversion="2.3.0_1"
+    segtype="paragraph"
+    o-tmf="OmegaT TMX"
+    adminlang="EN-US"
+    srclang="EN"
+    datatype="plaintext"
+  >
+  </header>
+  <body>
+    <tu>
+      <tuv lang="EN">
+        <seg>Cancel</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T114519Z" changeid="michal">
+        <seg>Anuluj</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Config</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T104848Z" changeid="michal">
+        <seg>Konfiguracja</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Configuration</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T114441Z" changeid="michal">
+        <seg>Konfiguracja</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Configuration file load error</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T134246Z" changeid="michal">
+        <seg>Błąd odczytu pliku konfiguracyjnego</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Configuration file save error</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T134216Z" changeid="michal">
+        <seg>Błąd zapisu pliku konfiguracyjnego</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Edit</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T104858Z" changeid="michal">
+        <seg>Edycja</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Exit</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T104907Z" changeid="michal">
+        <seg>Zakończ</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>File</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T104902Z" changeid="michal">
+        <seg>Plik</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Invalid number of threads (should be in range 1 .. 50).</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T104933Z" changeid="michal">
+        <seg>Niewłaściwa liczba wątków (dopuszczalny zakres 1 .. 50).</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Invalid timeout (should be in range 1000 .. 300000).</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T105001Z" changeid="michal">
+        <seg>Niewłaściwy czas oczekiwania (dopuszczalny zakres 1000 .. 300000).</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>OK</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T114459Z" changeid="michal">
+        <seg>OK</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Search</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T114434Z" changeid="michal">
+        <seg>Szukaj</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Threads</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T114457Z" changeid="michal">
+        <seg>Liczba wątków</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Timeout</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T114450Z" changeid="michal">
+        <seg>Czas oczekiwania</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>URL</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T114443Z" changeid="michal">
+        <seg>URL</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv lang="EN">
+        <seg>Using default values</seg>
+      </tuv>
+      <tuv lang="pl" changedate="20140803T134301Z" changeid="michal">
+        <seg>Zostaną użyte wartości domyślne</seg>
+      </tuv>
+    </tu>
+  </body>
+</tmx>

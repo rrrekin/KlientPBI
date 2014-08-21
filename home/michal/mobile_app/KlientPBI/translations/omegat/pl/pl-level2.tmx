@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+  <header
+    creationtool="OmegaT"
+    creationtoolversion="2.3.0_1"
+    segtype="paragraph"
+    o-tmf="OmegaT TMX"
+    adminlang="EN-US"
+    srclang="EN"
+    datatype="plaintext"
+  >
+  </header>
+  <body>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Using default values</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T134301Z" changeid="michal">
+        <seg>Zostaną użyte wartości domyślne</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Configuration</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T114441Z" changeid="michal">
+        <seg>Konfiguracja</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>About Klient PBI</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171705Z" changeid="michal">
+        <seg>O programie Klient PBI</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Edit</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T104858Z" changeid="michal">
+        <seg>Edycja</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Search</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T114434Z" changeid="michal">
+        <seg>Szukaj</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Cannot read cache file</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131823Z" changeid="michal">
+        <seg>Nie można odczytać pliku z pamięci podręcznej</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Book not fully downloaded</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131842Z" changeid="michal">
+        <seg>Książka nie jest w pełni pobrana</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Exit</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T104907Z" changeid="michal">
+        <seg>Zakończ</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Data fetch error. Check configuration.
+If the default http://www.pbi.edu.pl/ setting is not working, try to use http://91.238.85.34/</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T162357Z" changeid="michal">
+        <seg>Błąd pobierania. Proszę sprawdzić konfigurację.
+Jeżeli domyślna wartość http://www.pbi.edu.pl/ nie działa, należy wypróbować ustawienie http://91.238.85.34/</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Configuration error</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T162408Z" changeid="michal">
+        <seg>Błąd konfiguracji</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Timeout</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T114450Z" changeid="michal">
+        <seg>Czas oczekiwania</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Invalid number of threads (should be in range 1 .. 50).</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T104933Z" changeid="michal">
+        <seg>Niewłaściwa liczba wątków (dopuszczalny zakres 1 .. 50).</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>File exists</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171542Z" changeid="michal">
+        <seg>Plik istnieje</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Invalid timeout (should be in range 1000 .. 300000).</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T105001Z" changeid="michal">
+        <seg>Niewłaściwy czas oczekiwania (dopuszczalny zakres 1000 .. 300000).</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Are you sure to clear cache?</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T050013Z" changeid="michal">
+        <seg>Na pewno usunąć wszystkie pliki pamięci podręcznej pobierania?</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>File '%s' already exists. Overwrite?</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171602Z" changeid="michal">
+        <seg>Plik '%s' już istnieje. Zamazać go?</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Use cached previous downloads</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131906Z" changeid="michal">
+        <seg>Użyj danych z pamięci podręcznej</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Author</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131649Z" changeid="michal">
+        <seg>Autor</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Close</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171913Z" changeid="michal">
+        <seg>Zamknij</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Save</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131958Z" changeid="michal">
+        <seg>Zapisz</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Id</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131728Z" changeid="michal">
+        <seg>Id</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>File</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T104902Z" changeid="michal">
+        <seg>Plik</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Help</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171929Z" changeid="michal">
+        <seg>Pomoc</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>License:</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171940Z" changeid="michal">
+        <seg>Licencja:</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Cancel</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T114519Z" changeid="michal">
+        <seg>Anuluj</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Config</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T045906Z" changeid="michal">
+        <seg>Konfiguracja</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Standard</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131932Z" changeid="michal">
+        <seg>Standardowa</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Configuration file load error</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T134246Z" changeid="michal">
+        <seg>Błąd odczytu pliku konfiguracyjnego</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>URL</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T114443Z" changeid="michal">
+        <seg>URL</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Page joining method</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131915Z" changeid="michal">
+        <seg>Metoda łączenia stron</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>HTML file</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T132028Z" changeid="michal">
+        <seg>Plik HTML</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Changelog</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T050021Z" changeid="michal">
+        <seg>Lista zmian</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>OK</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T114459Z" changeid="michal">
+        <seg>OK</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Support:</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T045923Z" changeid="michal">
+        <seg>Wsparcie techniczne:</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Download</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131735Z" changeid="michal">
+        <seg>Pobierz</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Clear whole cache</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T045953Z" changeid="michal">
+        <seg>Wyczyść pamięć podręczną pobierania</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Title</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131656Z" changeid="michal">
+        <seg>Tytuł</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Cannot write to file</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131800Z" changeid="michal">
+        <seg>Nie można zapisać w pliku</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Cannot write to cache directory</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131750Z" changeid="michal">
+        <seg>Nie można zapisać w katalogu pamięci podręcznej</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>EPUB file</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T132039Z" changeid="michal">
+        <seg>Plik EPUB</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Threads</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T114457Z" changeid="michal">
+        <seg>Liczba wątków</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Author: Michał Rudewicz (michal.rudewicz@gmail.com)</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171608Z" changeid="michal">
+        <seg>Autor: Michał Rudewicz (michal.rudewicz@gmail.com)</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Download again</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171535Z" changeid="michal">
+        <seg>Pobierz ponownie</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Configuration file save error</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140803T134216Z" changeid="michal">
+        <seg>Błąd zapisu pliku konfiguracyjnego</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Dehyphenate</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131944Z" changeid="michal">
+        <seg>Usuwanie przenoszenia wyrazów</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Homepage:</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140818T171613Z" changeid="michal">
+        <seg>Strona domowa:</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Unhandled exception</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T132007Z" changeid="michal">
+        <seg>Nieobsłużony wyjątek</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Loading...</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131719Z" changeid="michal">
+        <seg>Pobieranie...</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>File save error</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T132016Z" changeid="michal">
+        <seg>Błąd zapisu pliku</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Configuration file read error. Using default configuration.</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140820T162448Z" changeid="michal">
+        <seg>Błąd odczytu pliku konfiguracyjnego. Użycie wartości domyślnych.</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>None</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131921Z" changeid="michal">
+        <seg>Brak</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="EN">
+        <seg>Verse</seg>
+      </tuv>
+      <tuv xml:lang="pl" changedate="20140817T131925Z" changeid="michal">
+        <seg>Wiersz</seg>
+      </tuv>
+    </tu>
+  </body>
+</tmx>

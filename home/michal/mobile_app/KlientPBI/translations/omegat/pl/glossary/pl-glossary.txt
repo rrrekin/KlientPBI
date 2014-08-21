@@ -1,0 +1,6 @@
+Config	Konfiguracja
+File	Plik
+Edit	Edycja
+Exit	Zakończ
+thread	wątek
+timeout	czas oczekiwania

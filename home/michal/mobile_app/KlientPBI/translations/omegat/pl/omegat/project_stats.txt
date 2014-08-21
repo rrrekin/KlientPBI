@@ -1,0 +1,14 @@
+20.08.14 19:02
+Statystyka projektu
+
+                                	Segmentów	Wyrazów	Znaków (bez spacji)	Znaków (ze spacjami)	
+Całkowita liczba:               	       52	    143	                845	                 934	
+Pozostało:                      	        0	      0	                  0	                   0	
+Niepowtarzających się, ogólnie: 	       52	    143	                845	                 934	
+Niepowtarzających się pozostało:	        0	      0	                  0	                   0	
+
+
+Statystyka poszczególnych plików:
+
+Nazwa pliku                                	Total Segments	Remaining Segments	Unique Segments	Unique Remaining Segments	Całkowita liczba wyrazów	Wyrazów pozostało	Unique Words	Unique Remaining Words	Całkowita liczba znaków (bez spacji)	Znaków (bez spacji) pozostało	Unique Characters (without spaces)	Unique Remaining Characters (without spaces)	Całkowita liczba znaków (ze spacjami)	Znaków (ze spacjami) pozostało	Unique Characters (including spaces)	Unique Remaining Characters (including spaces)	
+KlientPBI/pl/prv/rrrekin/pbi/gui.properties	            52	                 0	             52	                        0	                     143	                0	         143	                     0	                                 845	                            0	                               845	                                           0	                                  934	                             0	                                 934	                                             0	

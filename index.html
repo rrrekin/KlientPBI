@@ -10,10 +10,21 @@
 <link rel="icon" type="image/png" href="images/exe-icon.png"/><!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+<script src="https://apis.google.com/js/platform.js" async defer>
+  {lang: 'pl'}
+</script>
 <title>Klient PBI</title>
 </head>
 
 <body>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 <div id="container">
     <div class="inner">
 
@@ -38,6 +49,9 @@
             <p>Program przewiduje 4 opcje sklejania stron: brak poprawek, optymalizacja dla wierszy, tryb standardowy i tryb z usuwaniem przenoszenia wyrazów. Ten ostatni jak na razie nie jest zaimplementowany i działa jak standardowy, bo jak na razie nie trafiłem na książkę, w której taka operacja byłaby konieczna.</p>
             <p>Wymagana Java 7 lub nowsza.</p>
 
+            <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>
+            <div class="g-plus" data-action="share"></div>
+            <div class="g-plusone" data-annotation="inline" data-width="300"></div>
             <hr>
 
             <h3>Lista zmian</h3>

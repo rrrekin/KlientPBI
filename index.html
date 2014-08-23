@@ -1,103 +1,103 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset='utf-8'>
-<meta http-equiv="X-UA-Compatible" content="chrome=1">
-<link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-<link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-<link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-<link rel="icon" type="image/png" href="images/exe-icon.png"/><!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-<script src="https://apis.google.com/js/platform.js" async defer>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href="https://fonts.googleapis.com/css?family=Chivo:900" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <link rel="icon" type="image/png" href="images/exe-icon.png">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>    <![endif]-->
+    <script src="https://apis.google.com/js/platform.js" async="" defer="defer">
   {lang: 'pl'}
-</script>
-<title>Klient PBI</title>
-</head>
-
-<body>
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
+</script> <title>Klient PBI</title>
+  </head>
+  <body>
+    <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;
   js.src = "//connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.0";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
-<div id="container">
-    <div class="inner">
-
+    <div id="container">
+      <div class="inner">
         <header>
-            <h1>Klient PBI</h1>
-            <h2>Klient PBI - aplikacja do pobierania ebooków z Polskiej Biblioteki internetowej</h2>
+          <h1>Klient PBI</h1>
+          <h2>Klient PBI - aplikacja do pobierania ebooków z Polskiej Biblioteki internetowej</h2>
         </header>
-
-        <section id="downloads" class="clearfix">
-            <a href="latest/KlientPBI.zip" id="download-zip" class="button"><span>Wersja uniwersalna</span></a>
-            <a href="latest/KlientPBI.exe" id="download-exe" class="button"><span>Wersja dla Windows</span></a>
-            <a href="https://github.com/rrrekin/KlientPBI" id="view-on-github" class="button" target="_blank"><span>Źródła na GitHub</span></a>
+        <section id="downloads" class="clearfix"> <a href="latest/KlientPBI.zip" id="download-zip" class="button"><span>Wersja
+              uniwersalna</span></a> <a href="latest/KlientPBI.exe" id="download-exe" class="button"><span>Wersja dla Windows</span></a>
+          <a href="https://github.com/rrrekin/KlientPBI" id="view-on-github" class="button" target="_blank"><span>Źródła na GitHub</span></a>
         </section>
-
         <hr>
-
         <section id="main_content">
-            <h3>Klient Polskiej Biblioteki Internetowej</h3>
-            <p>Program służy do pobierania z <a href="http://www.pbi.edu.pl/" target="_blank">Polskiej Bibliteki Internetowej</a> książek
-            będących w domenie publicznej i zapisywania ich w formatach czytelnych dla współczesnych czytników i programów do
-            czytania e-booków (obecnie EPUB i HTML).</p>
-            <p>Program przewiduje 4 opcje sklejania stron: brak poprawek, optymalizacja dla wierszy, tryb standardowy i tryb z usuwaniem przenoszenia wyrazów. Ten ostatni jak na razie nie jest zaimplementowany i działa jak standardowy, bo jak na razie nie trafiłem na książkę, w której taka operacja byłaby konieczna.</p>
-            <p>Wymagana Java 7 lub nowsza.</p>
-
-            <hr>
-
-            <h3>Lista zmian</h3>
-            <h4>0.7.6</h4>
-            <p>Poprawki przeznaczone dla osób, które mają problem z rozwiązywaniem w DNS adresu serwisu PBI (www.pbi.edu.pl):</p>
-            <ul>
-                <li>Automatyczne wybieranie http://91.238.85.34/ zamiast http://www.pbi.edu.pl/ jako domyślnego adresu serwisu w przypadku problemu z połączeniem</li>
-                <li>Sugestia poprawienia URL w komunikacie o błędzie w przypadku błędu połączenia.</li>
-                <li>W oknie konfiguracji podpowiadanie dwóch standardowych adresów serwisu: http://www.pbi.edu.pl/ i http://91.238.85.34/.</li>
-            </ul>
-            <section class="clearfix">
-                <a href="0.7.6/KlientPBI-0.7.6.zip" id="download-zip" class="button"><span>Wersja uniwersalna</span></a>
-                <a href="0.7.6/KlientPBI.exe" id="download-exe" class="button"><span>Wersja dla Windows</span></a>
-            </section>
-            <hr>
-            <h4>0.7.5</h4>
-            <ul>
-                <li>Poprawiony błąd w podmianie minusa na pauzę.</li>
-                <li>Dodane podmienianie minusa na pauzę na końcu wiersza.</li>
-                <li>Uzupełnienie okienka z informacjami o programie.</li>
-                <li>Dodane polecenie czyszczenia pamięci podręcznej pobranych książek.</li>
-                <li>Dodane wstępne ładowanie klas przy starcie aplikacji.</li>
-                <li>Dodane okno informacji o zmianach w programie.</li>
-                <li>Ustawienie podglądu pobranej książki na początku.</li>
-                <li>Styl w oknie podglądu dostosowywany zależnie od trybu łączenia stron (inny dla wierszy).</li>
-            </ul>
-            <hr>
-            <h4>0.7</h4>
-            <ul>
-                <li>pobieranie po podwójnym kliknięciu na liście</li>
-                <li>ograniczenie podglądu aby przyspieszyć jego wyświetlenie</li>
-                <li>dodanie okienka z informacjami o programie</li>
-            </ul>
-
+          <h3>Klient Polskiej Biblioteki Internetowej</h3>
+          <p>Program służy do pobierania z <a href="http://www.pbi.edu.pl/" target="_blank">Polskiej Bibliteki Internetowej</a>
+            książek będących w domenie publicznej i zapisywania ich w formatach czytelnych dla współczesnych czytników i programów
+            do czytania e-booków (obecnie EPUB i HTML).</p>
+          <p>Program przewiduje 4 opcje sklejania stron: brak poprawek, optymalizacja dla wierszy, tryb standardowy i tryb z
+            usuwaniem przenoszenia wyrazów. Ten ostatni jak na razie nie jest zaimplementowany i działa jak standardowy, bo jak na
+            razie nie trafiłem na książkę, w której taka operacja byłaby konieczna.</p>
+          <p>Wymagana Java 7 lub nowsza.</p>
+          <hr>
+          <h3>Lista zmian</h3>
+          <h4>0.7.7</h4>
+          <ul>
+            <li>Dodanie ikony i poprawienie wyświetlania aplikacji aplikacji w pasku zadań.</li>
+            <li>Poprawienie wyświetlania pojedynczego cudzysłowu/apostrofu w polu podglądu.</li>
+            <li>Zmiany informacji w oknie informacji o programie wynikające z utworzenia strony domowej projektu i repozytorium
+              GitHub.</li>
+            <li>Dodanie przycisku kierującemu na stronę domową projektu w przypadku pojawienia się nowej wersji programu.</li>
+            <li>Lista zmian jako HTML zamiast zwykłego tekstu.</li>
+          </ul>
+          <section class="clearfix"> <a href="0.7.7/KlientPBI-0.7.7.zip" id="download-zip" class="button"><span>Wersja
+                uniwersalna</span></a> <a href="0.7.7/KlientPBI.exe" id="download-exe" class="button"><span>Wersja dla Windows</span></a>
+          </section>
+          <hr>
+          <h4>0.7.6</h4>
+          <p>Poprawki przeznaczone dla osób, które mają problem z rozwiązywaniem w DNS adresu serwisu PBI (www.pbi.edu.pl):</p>
+          <ul>
+            <li>Automatyczne wybieranie http://91.238.85.34/ zamiast http://www.pbi.edu.pl/ jako domyślnego adresu serwisu w
+              przypadku problemu z połączeniem</li>
+            <li>Sugestia poprawienia URL w komunikacie o błędzie w przypadku błędu połączenia.</li>
+            <li>W oknie konfiguracji podpowiadanie dwóch standardowych adresów serwisu: http://www.pbi.edu.pl/ i
+              http://91.238.85.34/.</li>
+          </ul>
+          <section class="clearfix"> <a href="0.7.6/KlientPBI-0.7.6.zip" id="download-zip" class="button"><span>Wersja
+                uniwersalna</span></a> <a href="0.7.6/KlientPBI.exe" id="download-exe" class="button"><span>Wersja dla Windows</span></a>
+          </section>
+          <hr>
+          <h4>0.7.5</h4>
+          <ul>
+            <li>Poprawiony błąd w podmianie minusa na pauzę.</li>
+            <li>Dodane podmienianie minusa na pauzę na końcu wiersza.</li>
+            <li>Uzupełnienie okienka z informacjami o programie.</li>
+            <li>Dodane polecenie czyszczenia pamięci podręcznej pobranych książek.</li>
+            <li>Dodane wstępne ładowanie klas przy starcie aplikacji.</li>
+            <li>Dodane okno informacji o zmianach w programie.</li>
+            <li>Ustawienie podglądu pobranej książki na początku.</li>
+            <li>Styl w oknie podglądu dostosowywany zależnie od trybu łączenia stron (inny dla wierszy).</li>
+          </ul>
+          <hr>
+          <h4>0.7</h4>
+          <ul>
+            <li>pobieranie po podwójnym kliknięciu na liście</li>
+            <li>ograniczenie podglądu aby przyspieszyć jego wyświetlenie</li>
+            <li>dodanie okienka z informacjami o programie</li>
+          </ul>
         </section>
-
         <section>
-            <hr>
-            <div width="100%"><div class="fb-like" data-href="http://rrrekin.github.io/KlientPBI/" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div></div>
-            <div width="100%"><div class="g-plusone" data-annotation="none"></div><div class="g-plus" data-action="share"></div></div>
+          <hr>
+          <div width="100%"> </div>
+          <div width="100%"> </div>
         </section>
-
-        <footer>
-            Klient PBI is maintained by <a href="https://github.com/rrrekin">rrrekin</a><br>
-            This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
-
-
+        <footer> Klient PBI is maintained by <a href="https://github.com/rrrekin">rrrekin</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason
+            Long</a>. </footer>
+      </div>
     </div>
-</div>
-</body>
+  </body>
 </html>

@@ -16,6 +16,7 @@
 package pl.prv.rrrekin.pbi;
 
 import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import javax.swing.JDialog;
@@ -34,20 +35,31 @@ public class Changelog extends javax.swing.JDialog {
     public Changelog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        changelogPane.setText(new Scanner(Changelog.class.getResourceAsStream("/changelog.txt"), "UTF-8").useDelimiter("\\A").
-                next());
-//        scrollPane.scrollRectToVisible(new Rectangle());
-        changelogPane.setSelectionStart(0);
-        changelogPane.setSelectionEnd(0);
+        try {
+            changelogPane.setPage(Changelog.class.getResource("/changelog.html"));
+//        changelogPane.setText(new Scanner(Changelog.class.getResourceAsStream("/changelog.txt"), "UTF-8").useDelimiter("\\A").
+//                next());
+////        scrollPane.scrollRectToVisible(new Rectangle());
+//        changelogPane.setSelectionStart(0);
+//        changelogPane.setSelectionEnd(0);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public Changelog(JDialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        changelogPane.setText(new Scanner(Changelog.class.getResourceAsStream("/changelog.txt"), "UTF-8").useDelimiter("\\A").
-                next());
-        changelogPane.setSelectionStart(0);
-        changelogPane.setSelectionEnd(0);
+        try {
+            changelogPane.setPage(Changelog.class.getResource("/changelog.html"));
+//        changelogPane.setText(new Scanner(Changelog.class.getResourceAsStream("/changelog.txt"), "UTF-8").useDelimiter("\\A").
+//                next());
+////        scrollPane.scrollRectToVisible(new Rectangle());
+//        changelogPane.setSelectionStart(0);
+//        changelogPane.setSelectionEnd(0);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**

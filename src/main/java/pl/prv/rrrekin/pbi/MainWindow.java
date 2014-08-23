@@ -15,11 +15,18 @@
  */
 package pl.prv.rrrekin.pbi;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +40,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import pl.prv.rrrekin.pbi.models.SearchResultModel;
@@ -63,9 +73,33 @@ public class MainWindow extends javax.swing.JFrame {
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
         this.setPreferredSize(new Dimension(prefs.getInt("w", 400), prefs.getInt("h", 300)));
         initComponents();
-        List<Image> icons=new ArrayList<>();
-        for(String iconFile:"klient_pbi-16.png,klient_pbi-20.png,klient_pbi-32.png,klient_pbi-64.png,klient_pbi-128.png".split(",")){
-            ImageIcon icon=new ImageIcon(getClass().getResource("/pl/prv/rrrekin/pbi/img/"+iconFile));
+        loadingIcon.setVisible(false);
+        downloadButton.setEnabled(false);
+        try {
+            URL url = new URL(Util.VERSION_URL);
+            URLConnection con = url.openConnection();
+            InputStream in = con.getInputStream();
+            String encoding = con.getContentEncoding();
+            encoding = encoding == null ? "UTF-8" : encoding;
+//            String latestVersion = null;
+            String latestVersion = IOUtils.toString(in, encoding).trim();
+            String currentVersion = MainWindow.class.getPackage().getImplementationVersion();
+            if (latestVersion != null && !latestVersion.equals(currentVersion)) {
+                downloadNewVersion.setText(String.format(guiTexts.getString("NEW_VERSION_AVAILABLE"), latestVersion));
+                downloadNewVersion.setVisible(true);
+            } else {
+                logger.debug("Removing version button");
+                downloadNewVersion.setVisible(false);
+            }
+        } catch (MalformedURLException ex) {
+            logger.error("Malformed URL", ex);
+        } catch (IOException ex) {
+            logger.error("Communication error", ex);
+        }
+        List<Image> icons = new ArrayList<>();
+        for (String iconFile : "klient_pbi-16.png,klient_pbi-20.png,klient_pbi-32.png,klient_pbi-64.png,klient_pbi-128.png".split(
+                ",")) {
+            ImageIcon icon = new ImageIcon(getClass().getResource("/pl/prv/rrrekin/pbi/img/" + iconFile));
             icons.add(icon.getImage());
         }
         this.setIconImages(icons);
@@ -92,13 +126,16 @@ public class MainWindow extends javax.swing.JFrame {
         pbiSearcher = new pl.prv.rrrekin.pbi.PbiSearch();
         searchAuthor = new javax.swing.JTextField();
         searchButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        resultTable = new javax.swing.JTable();
         searchTitle = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
         downloadButton = new javax.swing.JButton();
+        downloadNewVersion = new javax.swing.JButton();
+        jLayeredPane1 = new javax.swing.JLayeredPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        resultTable = new javax.swing.JTable();
+        loadingIcon = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         mFile = new javax.swing.JMenu();
         mFileConfig = new javax.swing.JMenuItem();
@@ -112,6 +149,7 @@ public class MainWindow extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Klient PBI"); // NOI18N
         setIconImage(null);
+        setMinimumSize(new java.awt.Dimension(400, 400));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -127,18 +165,6 @@ public class MainWindow extends javax.swing.JFrame {
                 searchButtonActionPerformed(evt);
             }
         });
-
-        jScrollPane1.setName("jScrollPane1"); // NOI18N
-
-        resultTable.setModel(resultTableModel);
-        resultTable.setName("resultTable"); // NOI18N
-        resultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        resultTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                resultTableMouseClicked(evt);
-            }
-        });
-        jScrollPane1.setViewportView(resultTable);
 
         searchTitle.setName("searchTitle"); // NOI18N
 
@@ -157,6 +183,50 @@ public class MainWindow extends javax.swing.JFrame {
                 downloadButtonActionPerformed(evt);
             }
         });
+
+        downloadNewVersion.setText("new version");
+        downloadNewVersion.setName("downloadNewVersion"); // NOI18N
+        downloadNewVersion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadNewVersionActionPerformed(evt);
+            }
+        });
+
+        jLayeredPane1.setName("jLayeredPane1"); // NOI18N
+
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        resultTable.setModel(resultTableModel);
+        resultTable.setName("resultTable"); // NOI18N
+        resultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        resultTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                resultTableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(resultTable);
+
+        loadingIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        loadingIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pl/prv/rrrekin/pbi/img/loading.gif"))); // NOI18N
+        loadingIcon.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        loadingIcon.setName("loadingIcon"); // NOI18N
+
+        javax.swing.GroupLayout jLayeredPane1Layout = new javax.swing.GroupLayout(jLayeredPane1);
+        jLayeredPane1.setLayout(jLayeredPane1Layout);
+        jLayeredPane1Layout.setHorizontalGroup(
+            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(loadingIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE))
+        );
+        jLayeredPane1Layout.setVerticalGroup(
+            jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(loadingIcon, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE)
+            .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE))
+        );
+        jLayeredPane1.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(loadingIcon, javax.swing.JLayeredPane.POPUP_LAYER);
 
         jMenuBar1.setName("jMenuBar1"); // NOI18N
 
@@ -226,23 +296,24 @@ public class MainWindow extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLayeredPane1)
+                    .addComponent(progressBar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
                             .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(searchTitle)
-                            .addComponent(searchAuthor, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE))
+                            .addComponent(searchAuthor))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(searchButton))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(downloadNewVersion)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 613, Short.MAX_VALUE)
                         .addComponent(downloadButton)))
                 .addContainerGap())
         );
@@ -261,9 +332,11 @@ public class MainWindow extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 319, Short.MAX_VALUE)
+                .addComponent(jLayeredPane1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(downloadButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(downloadButton)
+                    .addComponent(downloadNewVersion))
                 .addContainerGap())
         );
 
@@ -289,6 +362,8 @@ public class MainWindow extends javax.swing.JFrame {
         searchAuthor.setEditable(false);
         searchTitle.setEnabled(false);
         resultTable.setEnabled(false);
+        downloadButton.setEnabled(false);
+        loadingIcon.setVisible(true);
 
         (new SwingWorker<List<PbiBookEntry>, Void>() {
 
@@ -302,8 +377,8 @@ public class MainWindow extends javax.swing.JFrame {
                 try {
                     searchResult = get();
                 } catch (Exception ex) {
-                    logger.error("Fetch error",ex);
-                    JOptionPane.showMessageDialog(null, guiTexts.getString("FETCH_ERROR") +"\n"+ex.getLocalizedMessage(),
+                    logger.error("Fetch error", ex);
+                    JOptionPane.showMessageDialog(null, guiTexts.getString("FETCH_ERROR") + "\n" + ex.getLocalizedMessage(),
                             guiTexts.getString("CONFIG_ERROR"), JOptionPane.ERROR_MESSAGE
                     );
                 }
@@ -314,6 +389,8 @@ public class MainWindow extends javax.swing.JFrame {
                 searchTitle.setEnabled(true);
                 resultTable.setEnabled(true);
                 resultTableModel.tableChanged();
+                downloadButton.setEnabled(true);
+                loadingIcon.setVisible(false);
             }
         }).execute();
 
@@ -397,6 +474,17 @@ public class MainWindow extends javax.swing.JFrame {
         dialog.setVisible(true);
     }//GEN-LAST:event_mChangelogActionPerformed
 
+    private void downloadNewVersionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadNewVersionActionPerformed
+        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+            try {
+                desktop.browse(new URI("http://rrrekin.github.io/KlientPBI/"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_downloadNewVersionActionPerformed
+
     private void removeDir(File path) {
         for (File f : path.listFiles()) {
             if (f.isDirectory()) {
@@ -479,10 +567,13 @@ public class MainWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton downloadButton;
+    private javax.swing.JButton downloadNewVersion;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel loadingIcon;
     private javax.swing.JMenuItem mAbout;
     private javax.swing.JMenuItem mChangelog;
     private javax.swing.JMenuItem mClearAllCache;

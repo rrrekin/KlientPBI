@@ -418,10 +418,9 @@ public class DownloadWindow extends javax.swing.JDialog {
             if(depagination.getSelectedIndex()==Depagination.VERSE.ordinal()){
                 doc.select("p").attr("style","margin:0;text-indent:0;");
             }
-            previewArea.setText(doc.html());
+            previewArea.setText(doc.toString().replaceAll("&apos;", "'"));
             previewArea.setSelectionStart(0);
             previewArea.setSelectionEnd(0);
-            System.out.println(doc);
         } else {
             previewArea.setText("");
         }

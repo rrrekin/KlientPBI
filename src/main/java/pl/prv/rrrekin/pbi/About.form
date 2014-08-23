@@ -33,11 +33,6 @@
                   <Component id="jScrollPane1" pref="495" max="32767" attributes="0"/>
                   <Component id="jLabel2" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel6" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="versionNo" max="32767" attributes="0"/>
@@ -47,11 +42,14 @@
                       <Component id="closeButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jScrollPane2" max="32767" attributes="0"/>
+                  <Component id="jScrollPane3" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
-                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jScrollPane3" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -72,16 +70,13 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane2" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
+              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane3" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="228" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" pref="223" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="closeButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -94,6 +89,12 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Klient PBI"/>
         <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="versionNo">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="0.0"/>
+        <Property name="name" type="java.lang.String" value="versionNo" noResource="true"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -112,6 +113,75 @@
         <Property name="name" type="java.lang.String" value="jLabel3" noResource="true"/>
       </Properties>
     </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="null"/>
+        </Property>
+        <Property name="name" type="java.lang.String" value="jScrollPane2" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTextPane" name="homepageField">
+          <Properties>
+            <Property name="editable" type="boolean" value="false"/>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ee" green="ee" id="Label.background" palette="3" red="ee" type="palette"/>
+            </Property>
+            <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0&quot;&gt;&#xa;      &lt;a href=&quot;http://rrrekin.github.io/KlientPBI/&quot;&gt;http://rrrekin.github.io/KlientPBI/&lt;/a&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;" noResource="true"/>
+            <Property name="UI" type="javax.swing.plaf.TextUI" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="default"/>
+            </Property>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="name" type="java.lang.String" value="homepageField" noResource="true"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JLabel" name="jLabel4">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="pl/prv/rrrekin/pbi/gui.properties" key="SUPPORT" replaceFormat="guiTexts.getString(&quot;{key}&quot;)"/>
+        </Property>
+        <Property name="name" type="java.lang.String" value="jLabel4" noResource="true"/>
+      </Properties>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="null"/>
+        </Property>
+        <Property name="name" type="java.lang.String" value="jScrollPane3" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTextPane" name="supportLink">
+          <Properties>
+            <Property name="editable" type="boolean" value="false"/>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ee" green="ee" id="Label.background" palette="3" red="ee" type="palette"/>
+            </Property>
+            <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0;&quot;&gt;&#xa;      &lt;a href=&quot;https://github.com/rrrekin/KlientPBI/issues&quot;&gt;https://github.com/rrrekin/KlientPBI/issues&lt;/a&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;" noResource="true"/>
+            <Property name="UI" type="javax.swing.plaf.TextUI" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="default"/>
+            </Property>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="name" type="java.lang.String" value="supportLink" noResource="true"/>
+            <Property name="opaque" type="boolean" value="false"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
@@ -146,65 +216,5 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeButtonActionPerformed"/>
       </Events>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
-      <Properties>
-        <Property name="name" type="java.lang.String" value="jScrollPane2" noResource="true"/>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="javax.swing.JTextPane" name="jTextPane2">
-          <Properties>
-            <Property name="editable" type="boolean" value="false"/>
-            <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
-            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0&quot;&gt;&#xa;      &lt;a href=&quot;http://rrrekin.github.io/KlientPBI/&quot;&gt;http://rrrekin.github.io/KlientPBI/&lt;/a&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;" noResource="true"/>
-            <Property name="name" type="java.lang.String" value="jTextPane2" noResource="true"/>
-          </Properties>
-        </Component>
-      </SubComponents>
-    </Container>
-    <Component class="javax.swing.JLabel" name="jLabel4">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="pl/prv/rrrekin/pbi/gui.properties" key="SUPPORT" replaceFormat="guiTexts.getString(&quot;{key}&quot;)"/>
-        </Property>
-        <Property name="name" type="java.lang.String" value="jLabel4" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel6">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="https://github.com/rrrekin/KlientPBI/issues"/>
-        <Property name="name" type="java.lang.String" value="jLabel6" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="versionNo">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="0.0"/>
-        <Property name="name" type="java.lang.String" value="versionNo" noResource="true"/>
-      </Properties>
-    </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane3">
-      <Properties>
-        <Property name="name" type="java.lang.String" value="jScrollPane3" noResource="true"/>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="javax.swing.JTextPane" name="jTextPane1">
-          <Properties>
-            <Property name="editable" type="boolean" value="false"/>
-            <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
-            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0&quot;&gt;&#xa;      &lt;a href=&quot;https://github.com/rrrekin/KlientPBI/issues&quot;&gt;https://github.com/rrrekin/KlientPBI/issues&lt;/a&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;" noResource="true"/>
-            <Property name="name" type="java.lang.String" value="jTextPane1" noResource="true"/>
-          </Properties>
-        </Component>
-      </SubComponents>
-    </Container>
   </SubComponents>
 </Form>

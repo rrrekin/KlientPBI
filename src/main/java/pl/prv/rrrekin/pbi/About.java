@@ -15,9 +15,15 @@
  */
 package pl.prv.rrrekin.pbi;
 
+import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dialog;
 import java.awt.Window;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ResourceBundle;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 /**
  *
@@ -25,6 +31,21 @@ import java.util.ResourceBundle;
  */
 public class About extends javax.swing.JDialog {
     private static final ResourceBundle guiTexts = ResourceBundle.getBundle("pl/prv/rrrekin/pbi/gui");
+    HyperlinkListener clickEnabler=new HyperlinkListener() {
+                    @Override
+                    public void hyperlinkUpdate(HyperlinkEvent e) {
+                        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                            if (Desktop.isDesktopSupported()) {
+                                try {
+                                    Desktop.getDesktop().browse(e.getURL().toURI());
+                                } catch (IOException ex) {
+                                } catch (URISyntaxException ex) {
+                                }
+                            }
+                        }
+                    }
+
+                };
 
     /**
      * Creates new form About
@@ -32,6 +53,8 @@ public class About extends javax.swing.JDialog {
     public About(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        homepageField.addHyperlinkListener(clickEnabler);
+        supportLink.addHyperlinkListener(clickEnabler);
         versionNo.setText(About.class.getPackage().getImplementationVersion());
         licensePane.setSelectionStart(0);
         licensePane.setSelectionEnd(0);
@@ -40,6 +63,8 @@ public class About extends javax.swing.JDialog {
     public About(Dialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        homepageField.addHyperlinkListener(clickEnabler);
+        supportLink.addHyperlinkListener(clickEnabler);
         versionNo.setText(About.class.getPackage().getImplementationVersion());
         licensePane.setSelectionStart(0);
         licensePane.setSelectionEnd(0);
@@ -54,19 +79,18 @@ public class About extends javax.swing.JDialog {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
+        versionNo = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        homepageField = new javax.swing.JTextPane();
+        jLabel4 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        supportLink = new javax.swing.JTextPane();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         licensePane = new javax.swing.JTextPane();
         closeButton = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextPane2 = new javax.swing.JTextPane();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        versionNo = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(guiTexts.getString("ABOUT")); // NOI18N
@@ -74,11 +98,40 @@ public class About extends javax.swing.JDialog {
         jLabel1.setText("Klient PBI");
         jLabel1.setName("jLabel1"); // NOI18N
 
+        versionNo.setText("0.0");
+        versionNo.setName("versionNo"); // NOI18N
+
         jLabel2.setText(guiTexts.getString("ABOUT_AUTHOR")); // NOI18N
         jLabel2.setName("jLabel2"); // NOI18N
 
         jLabel3.setText(guiTexts.getString("HOMEPAGE")); // NOI18N
         jLabel3.setName("jLabel3"); // NOI18N
+
+        jScrollPane2.setBorder(null);
+        jScrollPane2.setName("jScrollPane2"); // NOI18N
+
+        homepageField.setEditable(false);
+        homepageField.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
+        homepageField.setContentType("text/html"); // NOI18N
+        homepageField.setText("<html>\n  <head>\n  </head>\n  <body>\n    <p style=\"margin-top: 0\">\n      <a href=\"http://rrrekin.github.io/KlientPBI/\">http://rrrekin.github.io/KlientPBI/</a>\n    </p>\n  </body>\n</html>\n"); // NOI18N
+        homepageField.setFocusable(false);
+        homepageField.setName("homepageField"); // NOI18N
+        jScrollPane2.setViewportView(homepageField);
+
+        jLabel4.setText(guiTexts.getString("SUPPORT")); // NOI18N
+        jLabel4.setName("jLabel4"); // NOI18N
+
+        jScrollPane3.setBorder(null);
+        jScrollPane3.setName("jScrollPane3"); // NOI18N
+
+        supportLink.setEditable(false);
+        supportLink.setBackground(javax.swing.UIManager.getDefaults().getColor("Label.background"));
+        supportLink.setContentType("text/html"); // NOI18N
+        supportLink.setText("<html>\n  <head>\n\n  </head>\n  <body>\n    <p style=\"margin-top: 0;\">\n      <a href=\"https://github.com/rrrekin/KlientPBI/issues\">https://github.com/rrrekin/KlientPBI/issues</a>\n    </p>\n  </body>\n</html>\n"); // NOI18N
+        supportLink.setFocusable(false);
+        supportLink.setName("supportLink"); // NOI18N
+        supportLink.setOpaque(false);
+        jScrollPane3.setViewportView(supportLink);
 
         jLabel5.setText(guiTexts.getString("LICENSE")); // NOI18N
         jLabel5.setName("jLabel5"); // NOI18N
@@ -97,31 +150,6 @@ public class About extends javax.swing.JDialog {
             }
         });
 
-        jScrollPane2.setName("jScrollPane2"); // NOI18N
-
-        jTextPane2.setEditable(false);
-        jTextPane2.setContentType("text/html"); // NOI18N
-        jTextPane2.setText("<html>\n  <head>\n\n  </head>\n  <body>\n    <p style=\"margin-top: 0\">\n      <a href=\"http://rrrekin.github.io/KlientPBI/\">http://rrrekin.github.io/KlientPBI/</a>\n    </p>\n  </body>\n</html>\n"); // NOI18N
-        jTextPane2.setName("jTextPane2"); // NOI18N
-        jScrollPane2.setViewportView(jTextPane2);
-
-        jLabel4.setText(guiTexts.getString("SUPPORT")); // NOI18N
-        jLabel4.setName("jLabel4"); // NOI18N
-
-        jLabel6.setText("https://github.com/rrrekin/KlientPBI/issues");
-        jLabel6.setName("jLabel6"); // NOI18N
-
-        versionNo.setText("0.0");
-        versionNo.setName("versionNo"); // NOI18N
-
-        jScrollPane3.setName("jScrollPane3"); // NOI18N
-
-        jTextPane1.setEditable(false);
-        jTextPane1.setContentType("text/html"); // NOI18N
-        jTextPane1.setText("<html>\n  <head>\n\n  </head>\n  <body>\n    <p style=\"margin-top: 0\">\n      <a href=\"https://github.com/rrrekin/KlientPBI/issues\">https://github.com/rrrekin/KlientPBI/issues</a>\n    </p>\n  </body>\n</html>\n"); // NOI18N
-        jTextPane1.setName("jTextPane1"); // NOI18N
-        jScrollPane3.setViewportView(jTextPane1);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -133,10 +161,6 @@ public class About extends javax.swing.JDialog {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(versionNo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -144,10 +168,12 @@ public class About extends javax.swing.JDialog {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(closeButton))
                     .addComponent(jScrollPane2)
+                    .addComponent(jScrollPane3)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane3))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -164,15 +190,13 @@ public class About extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel6))
+                .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(closeButton)
                 .addContainerGap())
@@ -229,18 +253,17 @@ public class About extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
+    private javax.swing.JTextPane homepageField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTextPane jTextPane1;
-    private javax.swing.JTextPane jTextPane2;
     private javax.swing.JTextPane licensePane;
+    private javax.swing.JTextPane supportLink;
     private javax.swing.JLabel versionNo;
     // End of variables declaration//GEN-END:variables
 }

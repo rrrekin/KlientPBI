@@ -54,7 +54,7 @@ public class Util {
             = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\"></html>";
 
     private static final Log logger = LogFactory.getLog(Util.class);
-    static String VERSION_URL="http://rrrekin.github.io/KlientPBI/last_version";
+    static String VERSION_URL = "http://rrrekin.github.io/KlientPBI/last_version";
 
     static {
         try {
@@ -64,7 +64,7 @@ public class Util {
             logger.fatal(ex.getLocalizedMessage());
             System.exit(1);
         } catch (IOException ex) {
-            logger.error("Cannot connect to the default PBI URL: " + ex.getLocalizedMessage()+". Using fallback URL.");
+            logger.error("Cannot connect to the default PBI URL: " + ex.getLocalizedMessage() + ". Using fallback URL.");
             try {
                 DEFAULT_URL = new URL(FALLBACK_URL_STRING);
             } catch (MalformedURLException ex1) {
@@ -132,6 +132,7 @@ public class Util {
         } catch (ClassNotFoundException ex) {
             logger.info(ex.getLocalizedMessage());
         }
+        System.setProperty("com.sun.media.jai.disableMediaLib", "true");
 
     }
 

@@ -15,26 +15,38 @@
  */
 package pl.prv.rrrekin.pbi;
 
+import com.sun.media.jai.codec.JPEGEncodeParam;
 import java.awt.Dimension;
+import java.awt.RenderingHints;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.awt.image.RenderedImage;
+import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import javax.media.jai.Histogram;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.ColorQuantizerDescriptor;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.Document;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jsoup.nodes.Element;
 
 /**
  *
@@ -44,6 +56,7 @@ public class DownloadWindow extends javax.swing.JDialog {
 
     private final int bookId;
     private final String bookTitle;
+    private File imagesDir;
     private static final ResourceBundle guiTexts = ResourceBundle.getBundle("pl/prv/rrrekin/pbi/gui");
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -58,6 +71,8 @@ public class DownloadWindow extends javax.swing.JDialog {
         this.bookId = bookId;
         this.bookTitle = name;
         initComponents();
+        picWidth.setValue(prefs.getInt("picWidth", 758));
+        picHeight.setValue(prefs.getInt("picHeight", 1024));
         downloadButtonActionPerformed(null);
     }
 
@@ -81,14 +96,27 @@ public class DownloadWindow extends javax.swing.JDialog {
         depagination = new javax.swing.JComboBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         previewArea = new javax.swing.JTextPane();
-        cancelButton = new javax.swing.JButton();
         saveButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        enableImageProcessing = new javax.swing.JCheckBox();
+        jLabel4 = new javax.swing.JLabel();
+        picWidth = new javax.swing.JSpinner();
+        jLabel5 = new javax.swing.JLabel();
+        colorReduction = new javax.swing.JComboBox();
+        refreshButton = new javax.swing.JButton();
+        picHeight = new javax.swing.JSpinner();
+        jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(400, 392));
+        setMinimumSize(new java.awt.Dimension(500, 420));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
+            }
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
             }
         });
 
@@ -123,6 +151,9 @@ public class DownloadWindow extends javax.swing.JDialog {
         jLabel1.setText(guiTexts.getString("AUTHOR")); // NOI18N
         jLabel1.setName("jLabel1"); // NOI18N
 
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, authorName, org.jdesktop.beansbinding.ObjectProperty.create(), jLabel1, org.jdesktop.beansbinding.BeanProperty.create("labelFor"));
+        bindingGroup.addBinding(binding);
+
         authorName.setName("authorName"); // NOI18N
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, downloader, org.jdesktop.beansbinding.ELProperty.create("${author}"), authorName, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
@@ -139,6 +170,9 @@ public class DownloadWindow extends javax.swing.JDialog {
         jLabel2.setText(guiTexts.getString("JOINING_PAGES")); // NOI18N
         jLabel2.setName("jLabel2"); // NOI18N
 
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, depagination, org.jdesktop.beansbinding.ObjectProperty.create(), jLabel2, org.jdesktop.beansbinding.BeanProperty.create("labelFor"));
+        bindingGroup.addBinding(binding);
+
         depagination.setModel(new DefaultComboBoxModel(Depagination.localValues()));
         depagination.setName("depagination"); // NOI18N
 
@@ -153,19 +187,10 @@ public class DownloadWindow extends javax.swing.JDialog {
             }
         });
 
-        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
         previewArea.setName("previewArea"); // NOI18N
         jScrollPane1.setViewportView(previewArea);
-
-        cancelButton.setText(guiTexts.getString("CANCEL")); // NOI18N
-        cancelButton.setName("cancelButton"); // NOI18N
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
-            }
-        });
 
         saveButton.setText(guiTexts.getString("SAVE")); // NOI18N
         saveButton.setName("saveButton"); // NOI18N
@@ -179,6 +204,120 @@ public class DownloadWindow extends javax.swing.JDialog {
             }
         });
 
+        cancelButton.setText(guiTexts.getString("CANCEL")); // NOI18N
+        cancelButton.setName("cancelButton"); // NOI18N
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
+        jPanel1.setName("jPanel1"); // NOI18N
+
+        jLabel3.setText(guiTexts.getString("CONTAINS_IMAGES")); // NOI18N
+        jLabel3.setName("jLabel3"); // NOI18N
+
+        enableImageProcessing.setText(guiTexts.getString("ENABLE_IMG_PROCESS")); // NOI18N
+        enableImageProcessing.setName("enableImageProcessing"); // NOI18N
+
+        jLabel4.setText(guiTexts.getString("MAX_PIC_DIMENSION")); // NOI18N
+        jLabel4.setName("jLabel4"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, picWidth, org.jdesktop.beansbinding.ObjectProperty.create(), jLabel4, org.jdesktop.beansbinding.BeanProperty.create("labelFor"));
+        bindingGroup.addBinding(binding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, enableImageProcessing, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jLabel4, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        picWidth.setModel(new javax.swing.SpinnerNumberModel(480, 300, 10000, 1));
+        picWidth.setName("picWidth"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, enableImageProcessing, org.jdesktop.beansbinding.ELProperty.create("${selected}"), picWidth, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        jLabel5.setText(guiTexts.getString("COLOR_REDUCTION")); // NOI18N
+        jLabel5.setName("jLabel5"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, colorReduction, org.jdesktop.beansbinding.ObjectProperty.create(), jLabel5, org.jdesktop.beansbinding.BeanProperty.create("labelFor"));
+        bindingGroup.addBinding(binding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, enableImageProcessing, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jLabel5, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        colorReduction.setModel(new javax.swing.DefaultComboBoxModel(new String[] { guiTexts.getString("NO_REDUCTION"), guiTexts.getString("GRAY2"), guiTexts.getString("GRAY4"), guiTexts.getString("GRAY16"),guiTexts.getString("COLOR256") }));
+        colorReduction.setName("colorReduction"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, enableImageProcessing, org.jdesktop.beansbinding.ELProperty.create("${selected}"), colorReduction, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        refreshButton.setText(guiTexts.getString("REFRESH_PREVIEW")); // NOI18N
+        refreshButton.setName("refreshButton"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, enableImageProcessing, org.jdesktop.beansbinding.ELProperty.create("${selected}"), refreshButton, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        refreshButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshButtonActionPerformed(evt);
+            }
+        });
+
+        picHeight.setModel(new javax.swing.SpinnerNumberModel(800, 300, 10000, 1));
+        picHeight.setName("picHeight"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, enableImageProcessing, org.jdesktop.beansbinding.ELProperty.create("${selected}"), picHeight, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        jLabel6.setText("x");
+        jLabel6.setName("jLabel6"); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(colorReduction, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(33, 33, 33)
+                        .addComponent(refreshButton))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(enableImageProcessing)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(picWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(picHeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 38, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(enableImageProcessing)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(picWidth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(picHeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(colorReduction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(refreshButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -190,14 +329,9 @@ public class DownloadWindow extends javax.swing.JDialog {
                     .addComponent(titleField)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(useCache)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(downloadButton))
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(saveButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(cancelButton))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -205,12 +339,18 @@ public class DownloadWindow extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(depagination, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(depagination, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(saveButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(cancelButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(useCache)
@@ -228,13 +368,18 @@ public class DownloadWindow extends javax.swing.JDialog {
                     .addComponent(jLabel2)
                     .addComponent(depagination, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelButton)
                     .addComponent(saveButton))
                 .addContainerGap())
         );
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, downloader, org.jdesktop.beansbinding.ELProperty.create("${hasImages}"), jPanel1, org.jdesktop.beansbinding.BeanProperty.create("visible"));
+        bindingGroup.addBinding(binding);
 
         bindingGroup.bind();
 
@@ -257,6 +402,10 @@ public class DownloadWindow extends javax.swing.JDialog {
 
         prefs.putInt("w", this.getWidth());
         prefs.putInt("h", this.getHeight());
+        try {
+            prefs.flush();
+        } catch (BackingStoreException ex) {
+        }
     }//GEN-LAST:event_formWindowClosing
 
     private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadButtonActionPerformed
@@ -410,21 +559,250 @@ public class DownloadWindow extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_saveButtonActionPerformed
 
+    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
+        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        prefs.putInt("picWidth", (Integer) picWidth.getValue());
+        prefs.putInt("picHeight", (Integer) picHeight.getValue());
+        doPreviev();
+    }//GEN-LAST:event_refreshButtonActionPerformed
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+
+        prefs.putInt("w", this.getWidth());
+        prefs.putInt("h", this.getHeight());
+        try {
+            prefs.flush();
+        } catch (BackingStoreException ex) {
+        }
+    }//GEN-LAST:event_formWindowClosed
+
     private void doPreviev() {
         if (downloader.getBook() != null && downloader.isFinished()) {
             org.jsoup.nodes.Document doc = downloader.getBook().buildHtml(true);
             previewArea.setContentType("text/html");
             doc.body().attr("style", "font-family: Vardana, Helvetica, sans-serif;font-size: 10pt;");
-            if(depagination.getSelectedIndex()==Depagination.VERSE.ordinal()){
-                doc.select("p").attr("style","margin:0;text-indent:0;");
+            if (depagination.getSelectedIndex() == Depagination.VERSE.ordinal()) {
+                doc.select("p").attr("style", "margin:0;text-indent:0;");
+            }
+            for (Element img : doc.select("img")) {
+                String fileName = img.attr("src").replaceFirst(".*/", "");
+                try {
+                    URL fileUrl = prepareImageFile(fileName);
+                    img.attr("src", fileUrl.toString());
+//                    System.out.println(fileUrl);
+                } catch (MalformedURLException ex) {
+                    logger.warn("Invalid URL", ex);
+                }
             }
             previewArea.setText(doc.toString().replaceAll("&apos;", "'"));
             previewArea.setSelectionStart(0);
             previewArea.setSelectionEnd(0);
+//            System.out.println(previewArea.getText());
+//            System.out.println("hasImages " + downloader.isHasImages());
         } else {
             previewArea.setText("");
         }
 
+    }
+
+    private URL prepareImageFile(String fileName) throws MalformedURLException {
+        if (imagesDir == null) {
+            imagesDir = new File(Util.CACHE_IMAGES, Integer.toString(downloader.getId()));
+        }
+        if (enableImageProcessing.isSelected()) {
+            final int desWidth = (Integer) picWidth.getValue();
+            final int desHeight = (Integer) picHeight.getValue();
+            String processedSubdir = String.format("C%d-%dx%d", colorReduction.getSelectedIndex(), desWidth, desHeight);
+            File outDir = new File(imagesDir, processedSubdir);
+            outDir.mkdirs();
+            String newFilename;
+            if (colorReduction.getSelectedIndex() != 0) {
+                newFilename = fileName.replaceFirst("\\.[^.]*", ".png");
+            } else {
+                newFilename = fileName;
+            }
+            File outFile = new File(outDir, newFilename);
+            File inFile = new File(imagesDir, fileName);
+//            System.out.println("inFile = " + inFile);
+            // Perform image processing
+            RenderedImage image = (RenderedImage) JAI.create("fileload", inFile.getAbsolutePath());
+            int imgWidth = image.getWidth();
+            int imgHeight = image.getHeight();
+            double hRatio = ((double) desWidth) / ((double) imgWidth);
+            double vRatio = ((double) desHeight) / ((double) imgHeight);
+            double ratio = Math.min(vRatio, hRatio);
+//            System.out.println("ratio = " + ratio);
+//            ParameterBlock pb = new ParameterBlock();
+//            pb.addSource(image); // The source image
+//            pb.add(ratio); // The xScale
+//            pb.add(ratio); // The yScale
+//            pb.add(0.0F); // The x translation
+//            pb.add(0.0F); // The y translation
+//            System.out.println("pb = " + pb);
+
+            RenderingHints hints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            RenderedOp resizedImage = JAI.create("SubsampleAverage", image, ratio, ratio, hints);
+            switch (colorReduction.getSelectedIndex()) {
+                case 0:
+                    JPEGEncodeParam encodeParam = new JPEGEncodeParam();
+                    encodeParam.setQuality(0.8F);
+                    JAI.create("filestore", resizedImage, outFile.getAbsolutePath(), "JPEG", encodeParam);
+                    break;
+                case 1:
+                    ParameterBlock pb = new ParameterBlock();
+//                    pb.addSource(resizedImage);
+//                    pb.add(ColorQuantizerDescriptor.MEDIANCUT);
+//                    pb.add(16);
+//
+//                    PlanarImage intern = (PlanarImage) JAI.create("ColorQuantizer", pb);
+//                    LookupTableJAI lut = (LookupTableJAI) intern.getProperty("JAI.LookupTable");
+//
+//                    pb = new ParameterBlock();
+//                    pb.addSource(resizedImage);
+//                    pb.add(lut);
+//                    pb.add(KernelJAI.ERROR_FILTER_FLOYD_STEINBERG);
+//
+//                    RenderedOp dst = JAI.create("ErrorDiffusion", pb);
+
+                    pb = new ParameterBlock();
+//                    pb.addSource(image);   // The source image
+                    pb.addSource(resizedImage);   // The source image
+                    pb.add(null);        // The region of the image to scan
+                    pb.add(5);         // The horizontal sampling rate
+                    pb.add(5);         // The vertical sampling rate
+                    // Perform the extrema operation on the source image
+                    RenderedOp opEx = JAI.create("extrema", pb);
+                    // Retrieve both the maximum and minimum pixel value
+                    double[][] extrema = (double[][]) opEx.getProperty("extrema");
+                    int rSize = extrema[0].length;
+                    double[] med = new double[rSize];
+                    for (int i = 0; i < rSize; i++) {
+                        med[i] = 0.4 * extrema[0][i] + 0.6 * extrema[1][i];
+                    }
+
+                    pb = new ParameterBlock();
+                    pb.addSource(resizedImage);
+                    pb.add(med);
+                    pb.add(new double[]{255.0, 255.0, 255.0, 255.0, 255.0});
+                    pb.add(new double[]{255.0, 255.0, 255.0, 255.0, 255.0});
+                    PlanarImage dst = JAI.create("threshold", pb);
+                    pb = new ParameterBlock();
+                    pb.addSource(dst);
+                    pb.add(new double[]{0.0, 0.0, 0.0, 0.0, 0.0});
+                    pb.add(med);
+                    pb.add(new double[]{0.0, 0.0, 0.0, 0.0, 0.0});
+                    dst = JAI.create("threshold", pb);
+
+                    ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+                    BufferedImage out = new BufferedImage(resizedImage.getWidth(), resizedImage.getHeight(),
+                            BufferedImage.TYPE_BYTE_BINARY);
+                    op.filter(dst.getAsBufferedImage(), out);
+
+                    JAI.create("filestore", out, outFile.getAbsolutePath(), "PNG", null);
+                    break;
+                case 2:
+                    pb = new ParameterBlock();
+//                    pb.addSource(image);   // The source image
+                    pb.addSource(resizedImage);   // The source image
+                    pb.add(null);        // The region of the image to scan
+                    pb.add(1);         // The horizontal sampling rate
+                    pb.add(1);         // The vertical sampling rate
+                    // Perform the extrema operation on the source image
+                    opEx = JAI.create("extrema", pb);
+                    // Retrieve both the maximum and minimum pixel value
+                    extrema = (double[][]) opEx.getProperty("extrema");
+                    rSize = extrema[0].length;
+                    double[] multiply = new double[rSize];
+                    double[] offset = new double[rSize];
+                    for (int i = 0; i < rSize; i++) {
+                        multiply[i] = 255.0 / (extrema[1][i] - extrema[0][i]);
+                        offset[i] = 255.0 * extrema[0][i] / (extrema[0][i] - extrema[1][i]);
+                    }
+                    System.out.println("fileName = " + fileName);
+                    System.out.println("min = " + Arrays.toString(extrema[0]));
+                    System.out.println("max = " + Arrays.toString(extrema[1]));
+                    System.out.println("offset = " + Arrays.toString(offset));
+                    System.out.println("multiply = " + Arrays.toString(multiply));
+                    pb = new ParameterBlock();
+                    pb.addSource(resizedImage);
+                    pb.add(multiply);
+                    pb.add(offset);
+                    dst = JAI.create("rescale", pb);
+                    JAI.create("filestore", dst, outFile.getAbsolutePath(), "PNG", null);
+                    break;
+
+                case 3:
+//                    pb = new ParameterBlock();
+//                    pb.addSource(resizedImage);               // Specify the source image
+//                    pb.add(null);                      // No ROI
+//                    pb.add(1);                         // Sampling
+//                    pb.add(1);                         // periods
+//                    // Perform the histogram operation.
+//                    dst = (PlanarImage) JAI.create("histogram", pb, null);
+//                    // Retrieve the histogram data.
+//                    Histogram hist = (Histogram) dst.getProperty("histogram");
+//
+//                    int pixCount = resizedImage.getWidth() + resizedImage.getHeight();
+//                    int percentToSkip = pixCount / 5;
+//
+//                    extrema = new double[2][hist.getNumBands()];
+//                    multiply = new double[hist.getNumBands()];
+//                    offset = new double[hist.getNumBands()];
+//
+//                    for (int band = 0; band < hist.getNumBands(); band++) {
+//                        int[] bins = hist.getBins(band);
+//                        // Find lower limit
+//                        int sum = 0;
+//                        for (int i = 0; i < 256; i++) {
+//                            sum += bins[i];
+//                            if (sum >= percentToSkip) {
+//                                extrema[0][band] = i;
+//                                break;
+//                            }
+//                        }
+//                        // Find upper limit
+//                        sum = 0;
+//                        for (int i = 255; i >= 0; i--) {
+//                            sum += bins[i];
+//                            if (sum >= percentToSkip) {
+//                                extrema[1][band] = i;
+//                                break;
+//                            }
+//                        }
+//                        multiply[band] = 255.0 / (extrema[1][band] - extrema[0][band]);
+//                        offset[band] = 255.0 * extrema[0][band] / (extrema[0][band] - extrema[1][band]);
+//                    }
+//                    System.out.println("3 fileName = " + fileName);
+//                    System.out.println("min = " + Arrays.toString(extrema[0]));
+//                    System.out.println("max = " + Arrays.toString(extrema[1]));
+//                    System.out.println("offset = " + Arrays.toString(offset));
+//                    System.out.println("multiply = " + Arrays.toString(multiply));
+//                    pb = new ParameterBlock();
+//                    pb.add(multiply);
+//                    pb.add(offset);
+//                    pb.addSource(resizedImage);
+//                    dst = JAI.create("rescale", pb);
+//                    JAI.create("filestore", dst, outFile.getAbsolutePath(), "PNG", null);
+
+                case 4:
+                    pb = new ParameterBlock();
+                    pb.addSource(resizedImage);
+                    pb.add(ColorQuantizerDescriptor.NEUQUANT);
+                    pb.add(256);
+
+                    dst = (PlanarImage) JAI.create("ColorQuantizer", pb);
+
+                    JAI.create("filestore", dst, outFile.getAbsolutePath(), "PNG", null);
+                    break;
+                default:
+//                    JAI.create("filestore", reducedImage, outFile.getAbsolutePath(), "PNG", null);
+            }
+
+            return outFile.toURI().toURL();
+        } else {
+            return (new File(imagesDir, fileName)).toURI().toURL();
+        }
     }
 
     /**
@@ -479,14 +857,24 @@ public class DownloadWindow extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField authorName;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JComboBox colorReduction;
     private javax.swing.JComboBox depagination;
     private javax.swing.JButton downloadButton;
     private pl.prv.rrrekin.pbi.BookDownloader downloader;
+    private javax.swing.JCheckBox enableImageProcessing;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSpinner picHeight;
+    private javax.swing.JSpinner picWidth;
     private javax.swing.JTextPane previewArea;
     private javax.swing.JProgressBar progressBar;
+    private javax.swing.JButton refreshButton;
     private javax.swing.JButton saveButton;
     private javax.swing.JTextField titleField;
     private javax.swing.JCheckBox useCache;

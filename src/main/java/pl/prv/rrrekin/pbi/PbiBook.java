@@ -389,7 +389,7 @@ public class PbiBook {
                 body.append(p);
             }
             i++;
-            if (preview && i > 5 && body.html().length() > 7000) {
+            if (preview && i > 5) {
                 break;
             }
         }
@@ -519,21 +519,23 @@ public class PbiBook {
         int images = 0;
         int hyphenated = 0;
         for (String p : pages) {
-            Document html = Jsoup.parseBodyFragment(p);
-            if (!html.select("img").isEmpty()) {
-                images++;
-            }
-            final Elements divs = html.select("div");
-            for (Element div : divs) {
-                int l = div.text().length();
-                if (l > 5 && l < 100) {
-                    shorts++;
-                } else if (l >= 100) {
-                    longs++;
+            if (p != null) {
+                Document html = Jsoup.parseBodyFragment(p);
+                if (!html.select("img").isEmpty()) {
+                    images++;
                 }
-            }
-            if (!divs.isEmpty() && divs.last().text().matches("-\\s*$")) {
-                hyphenated++;
+                final Elements divs = html.select("div");
+                for (Element div : divs) {
+                    int l = div.text().length();
+                    if (l > 5 && l < 100) {
+                        shorts++;
+                    } else if (l >= 100) {
+                        longs++;
+                    }
+                }
+                if (!divs.isEmpty() && divs.last().text().matches("-\\s*$")) {
+                    hyphenated++;
+                }
             }
         }
         if (logger.isDebugEnabled()) {

@@ -71,10 +71,11 @@ public class BookDownloader {
     private int pagesGot = 0;
     private String author = "";
     private boolean cancel = false;
+    private boolean hasImages = false;
 
     private final Log logger = LogFactory.getLog(this.getClass());
     private final ConcurrentLinkedQueue<Integer> downloadQueue = new ConcurrentLinkedQueue<Integer>();
-    private final Configuration config;
+    private Configuration config;
     private final transient PropertyChangeSupport propertyChangeSupport = new java.beans.PropertyChangeSupport(this);
     private static JAXBContext jaxbContext;
     private static Marshaller marshaller;
@@ -88,6 +89,7 @@ public class BookDownloader {
     public static final String PROP_AUTHOR = "author";
     public static final String PROP_TITLE = "title";
     public static final String PROP_DEPAGINATION = "depagination";
+    public static final String PROP_HASIMAGES = "hasImages";
 
     static {
         try {
@@ -156,8 +158,15 @@ public class BookDownloader {
     }
 
     public void download(boolean useCache) throws IOException {
+        try {
+            config = Configuration.getInstance();
+        } catch (IOException ex) {
+            logger.error(ex);
+            System.exit(2);
+        }
         String oldDepagination = Depagination.STANDARD.toString();
         setIndeterminated(true);
+        boolean loaded=false;
         if (useCache && hasCache(id)) {
             try {
                 // Load book from cache
@@ -165,15 +174,23 @@ public class BookDownloader {
                 if (book != null) {
                     oldDepagination = book.getDepagination().toString();
                     book.guessDepagination();
-
+                    for (String p : book.getPages()) {
+                        if (p.contains("<img")) {
+                            setHasImages(true);
+                            break;
+                        }
+                    }
                 }
                 propertyChangeSupport.firePropertyChange(PROP_AUTHOR, "", book.getCorrectAuthor());
                 propertyChangeSupport.firePropertyChange(PROP_TITLE, "", book.getCorrectAuthor());
                 propertyChangeSupport.firePropertyChange(PROP_DEPAGINATION, oldDepagination, book.getDepagination().toString());
+                loaded=true;
             } catch (JAXBException ex) {
-                throw new IOException(guiTexts.getString("CANT_READ_CACHE_FILE"), ex);
+                logger.error("Cannot read cache file");
+//                throw new IOException(guiTexts.getString("CANT_READ_CACHE_FILE"), ex);
             }
-        } else {
+        }
+        if(!loaded) {
             setPageCount(0);
             setPagesGot(0);
             if (book != null) {
@@ -263,6 +280,10 @@ public class BookDownloader {
 //            saveBook();
         }
 
+        // Chreate directory for potentioal images
+        File images = new File(Util.CACHE_IMAGES, Integer.toString(id));
+        images.mkdir();
+
         if (!Util.LOGO_FILE.isFile()) {
             Util.LOGO_FILE.renameTo(new File(Util.CACHE_IMAGES, "" + System.currentTimeMillis() + ".gif"));
         }
@@ -346,6 +367,9 @@ public class BookDownloader {
         File file = Util.cacheFile(id);
         book = (PbiBook) unmarshaller.unmarshal(file);
         setIndeterminated(false);
+        if(book.getPages()==null){
+            throw new JAXBException("Book without pages");
+        }
         setPageCount(book.getPages().length);
         int downloaded = 0;
         for (String p : book.getPages()) {
@@ -529,6 +553,22 @@ public class BookDownloader {
         this.cancel = cancel;
     }
 
+    /**
+     * @return the hasImages
+     */
+    public boolean isHasImages() {
+        return hasImages;
+    }
+
+    /**
+     * @param hasImages the hasImages to set
+     */
+    public synchronized void setHasImages(boolean hasImages) {
+        boolean oldHasImages = this.hasImages;
+        this.hasImages = hasImages;
+        propertyChangeSupport.firePropertyChange(PROP_HASIMAGES, oldHasImages, hasImages);
+    }
+
     private class DownloadThreadFactory implements ThreadFactory {
 
         private int i = 0;
@@ -618,10 +658,30 @@ public class BookDownloader {
                     // Replace forms with paragraphs
                     content.select("form").tagName("p").removeAttr("id");
 
+                    for (Element img : content.select("img")) {
+//                        System.out.println("Page "+pageNo+": "+img);
+                        BookDownloader.this.setHasImages(true);
+                        String src = img.attr("src");
+                        img.removeAttr("width");
+                        img.removeAttr("height");
+                        img.attr("id", "p" + pageNo);
+                        img.attr("alt", "Strona " + pageNo);
+                        String localPath = "images/" + id + "/" + (src.replaceFirst(".*/", ""));
+                        img.attr("src", localPath);
+                        File localFile = new File(new File(Util.CACHE_IMAGES, Integer.toString(id)), src.replaceFirst(".*/", ""));
+                        URL srcUrl = new URL(config.getServerBaseUrl() + src);
+                        ReadableByteChannel rbc = Channels.newChannel(srcUrl.openStream());
+                        FileOutputStream fos = new FileOutputStream(localFile);
+                        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Image on page %d fetched", pageNo));
+                        }
+                    }
+
                     String text = content.html();
 
                     logger.debug(String.format("Page %d: %s", pageNo, text));
-                    
+
                     synchronized (pages) {
                         pages[pageNo - 1] = text;
                     }

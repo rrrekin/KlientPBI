@@ -15,8 +15,13 @@
  */
 package pl.prv.rrrekin.pbi;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.util.Arrays;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,26 +38,28 @@ public class experimets {
 
     public static void main(String[] args) throws IOException {
 
-        String txt
-                = "  <p> Przedmowa do książki jest co sień do domu, z tą jednak różnicą, iż domowi być bez sieni trudno, a książka się bez przedmowy obejdzie. Starożytni autorowie nie znali przedmów - ich wynalazek, tak jak i innych wielu rzeczy mniej potrzebnych, jest dziełem późniejszych wieków. </p> \n" +
-                "  <p> Wielorakie bywają przyczyny pobudzające autorów do kładzenia przedmów na czele pisma swojego. Jedni, fałszywej modestii pełni, zwierzają się czytelnikowi (choć ich o to nie prosił), jako pewni wielkiej dystynkcji i nie mniejszej doskonałości przyjaciele przymusili ich do wydania na świat tego, co dla własnej satysfakcji napisawszy chcieli mieć w ukryciu. Drudzy skarżą się na zdradę, że mimo ich wolą manuskrypt ich był porwany. Trzeci, czyniąc zadosyć rozkazom starszych, dając księgę do druku uczynili ofiarę heroiczną posłuszeństwa; i jakby to bardzo obchodziło ziewającego czytelnika, te i podobne czynią mu konfidencje. </p> \n" +
-                "  <p> Nieznacznie przedmowy weszły w modę; teraz jednak ta moda najbardziej panuje, gdy kunszt autorski został rzemiosłem. Bardzo wielu, a podobno większa połowa współbraci moich, autorów, żyje z druku; tak teraz robiemy książki jak zegarki, a że ich dobroć od grubości najbardziej zawisła, staramy się ile możności rozciągać, przedłużać i rozprzestrzeniać dzieła nasze. Jak więc przedmowy do literackiego handlu służą, łatwo baczny czytelnik domyślić się może. </p> \n";
+        int days = 2;
+        final FileTime oldest = FileTime.fromMillis(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * days);
+        File[] cacheFiles = Util.CACHE_DIR.listFiles(new FileFilter() {
 
-        Document doc = Jsoup.parseBodyFragment(txt);
-        for (Element e : doc.select("P")) {
-            txt = e.html();
-            System.out.println("txt1 = '" + txt + "'");
-            txt = txt.replaceFirst("^[ \\t\\r\\n ]+", ""); // Remove spaces at the beggining
-            System.out.println("txt2 = '" + txt + "'");
-            txt = txt.replaceFirst("[ \\t\\r\\n ]+$", ""); // Remove spaces at the end
-            System.out.println("txt3 = '" + txt + "'");
-            txt = txt.replaceAll("[ \\t\\r\\n ]+-[ \\t\\r\\n ]+", " &emdash; "); // Replace hyphens with emdash
-            System.out.println("txt4 = '" + txt + "'");
-            txt = txt.replaceFirst("^-[ \\t\\r\\n ]+", "&emdash; "); // Replace hyphens with emdash
-            System.out.println("txt5 = '" + txt + "'");
-            e.html(txt);
-        }
+            @Override
+            public boolean accept(File f) {
+                boolean older = false;
+//
+                try {
+                    FileTime modTime = Files.getLastModifiedTime(f.toPath());
+                    if (modTime.compareTo(oldest) < 0) {
+                        older = true;
+                    }
+                } catch (IOException ex) {
+                }
+                boolean isFile = f.isFile();
+                final boolean isDigitOnly = f.getName().toString().matches("\\d*");
+                return isDigitOnly && older && isFile;
+            }
+        });
+        
+        System.out.println(Arrays.toString(cacheFiles));
 
-        System.out.println("doc = " + doc.html());
     }
 }

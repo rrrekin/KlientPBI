@@ -45,6 +45,7 @@ public class Configuration {
     private URL serverBaseUrl;
     private Integer timeout = 15000;
     private Integer threads = 10;
+    private Integer maxCacheDays = 7;
     private final transient VetoableChangeSupport vetoableChangeSupport = new java.beans.VetoableChangeSupport(this);
     private static Configuration instance = null;
     private final transient PropertyChangeSupport propertyChangeSupport = new java.beans.PropertyChangeSupport(this);
@@ -69,11 +70,13 @@ public class Configuration {
      * Constant <code>PARAM_TIMEOUT="timeout"</code>
      */
     protected static final String PARAM_TIMEOUT = "timeout";
+    protected static final String PARAM_MAXCACHEDAYS = "maxCacheDays";
     /**
      * Constant <code>PARAM_URL="URL"</code>
      */
     protected static final String PARAM_URL = "URL";
     private static final ResourceBundle guiTexts = ResourceBundle.getBundle("pl/prv/rrrekin/pbi/gui");
+    public static final String PROP_MAXCACHEDAYS = "maxCacheDays";
 
     /**
      * Default config
@@ -91,6 +94,7 @@ public class Configuration {
         serverBaseUrl = o.serverBaseUrl;
         timeout = o.timeout;
         threads = o.threads;
+        maxCacheDays=o.maxCacheDays;
     }
 
     /**
@@ -139,6 +143,10 @@ public class Configuration {
             instance.threads = newConfig.threads;
             instance.propertyChangeSupport.firePropertyChange(PROP_THREADS, instance.threads, newConfig.threads);
         }
+        if (!instance.threads.equals(newConfig.maxCacheDays)) {
+            instance.maxCacheDays = newConfig.maxCacheDays;
+            instance.propertyChangeSupport.firePropertyChange(PROP_MAXCACHEDAYS, instance.maxCacheDays, newConfig.maxCacheDays);
+        }
     }
 
     /**
@@ -177,6 +185,10 @@ public class Configuration {
             threads = new Integer(props.getProperty(PARAM_THREADS, threads.toString()));
         } catch (NumberFormatException ex) {
         }
+        try {
+            maxCacheDays = new Integer(props.getProperty(PARAM_MAXCACHEDAYS, maxCacheDays.toString()));
+        } catch (NumberFormatException ex) {
+        }
     }
 
     /**
@@ -203,6 +215,7 @@ public class Configuration {
         props.setProperty(PARAM_URL, serverBaseUrl.toString());
         props.setProperty(PARAM_TIMEOUT, timeout.toString());
         props.setProperty(PARAM_THREADS, threads.toString());
+        props.setProperty(PARAM_MAXCACHEDAYS, maxCacheDays.toString());
         return props;
     }
 
@@ -310,6 +323,27 @@ public class Configuration {
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         this.propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * @return the maxCacheDays
+     */
+    public Integer getMaxCacheDays() {
+        return maxCacheDays;
+    }
+
+    /**
+     * @param maxCacheDays the maxCacheDays to set
+     */
+    public void setMaxCacheDays(Integer maxCacheDays) throws PropertyVetoException {
+        java.lang.Integer oldMaxCacheDays = this.maxCacheDays;
+        if (maxCacheDays < 1 || maxCacheDays > 500) {
+            throw new PropertyVetoException(guiTexts.getString("INVALID_THREADS_NUMBER"), new PropertyChangeEvent(this,
+                    PROP_MAXCACHEDAYS, oldMaxCacheDays, maxCacheDays));
+        }
+        vetoableChangeSupport.fireVetoableChange(PROP_MAXCACHEDAYS, oldMaxCacheDays, maxCacheDays);
+        this.maxCacheDays = maxCacheDays;
+        propertyChangeSupport.firePropertyChange(PROP_MAXCACHEDAYS, oldMaxCacheDays, maxCacheDays);
     }
 
 }

@@ -24,24 +24,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -543,6 +545,71 @@ public class MainWindow extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+
+        Runtime.getRuntime().addShutdownHook(new Thread("CleanCache") {
+
+            @Override
+            public void run() {
+                try {
+                    int days = Configuration.getInstance().getMaxCacheDays();
+                    final FileTime oldest = FileTime.fromMillis(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * days);
+                    File[] cacheFiles = Util.CACHE_DIR.listFiles(new FileFilter() {
+
+                        @Override
+                        public boolean accept(File f) {
+                            boolean older = false;
+//
+                            try {
+                                FileTime modTime = Files.getLastModifiedTime(f.toPath());
+                                if (modTime.compareTo(oldest) < 0) {
+                                    older = true;
+                                }
+                            } catch (IOException ex) {
+                            }
+                            boolean isFile = f.isFile();
+                            final boolean isDigitOnly = f.getName().matches("\\d*");
+                            return isDigitOnly && older && isFile;
+                        }
+                    });
+                    
+                    for (Object f : cacheFiles) {
+                        // Remove cache file and images
+                        if (f instanceof Path) {
+                            Path path = (Path) f;
+                            path.toFile().delete();
+                            File imagesDir = new File(Util.CACHE_IMAGES, path.toFile().getName());
+                            Files.walkFileTree(imagesDir.toPath(), new FileVisitor<Path>() {
+
+                                @Override
+                                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                                    return FileVisitResult.CONTINUE;
+                                }
+
+                                @Override
+                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                    file.toFile().delete();
+                                    return FileVisitResult.CONTINUE;
+                                }
+
+                                @Override
+                                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+
+                                    return FileVisitResult.CONTINUE;
+                                }
+
+                                @Override
+                                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                                    dir.toFile().delete();
+                                    return FileVisitResult.CONTINUE;
+                                }
+                            });
+
+                        }
+                    }
+                } catch (IOException ex) {
+                }
+            }
+        });
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {

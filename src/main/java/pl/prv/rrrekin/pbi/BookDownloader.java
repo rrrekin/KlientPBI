@@ -26,6 +26,8 @@ import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -34,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import javax.swing.JDialog;
 import javax.swing.text.html.HTML;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -136,7 +139,7 @@ public class BookDownloader {
 
 //        downloader.exportAsHtml();
 //        downloader.book.guessDepagination();
-        downloader.exportAsEpub(new File(downloader.getTitle() + ".epub"));
+//        downloader.exportAsEpub(new File(downloader.getTitle() + ".epub"));
     }
 
     public static boolean hasCache(int id) {
@@ -144,9 +147,10 @@ public class BookDownloader {
         return file.exists() && file.isFile() && file.canRead();
     }
 
-    public void exportAsHtml(File file) throws IOException {
+    public void exportAsHtml(JDialog parent, File file, boolean process, int procType, int bookId, int width, int height) throws
+            IOException {
         if (book != null) {
-            book.exportAsHtml(file);
+            book.exportAsHtml(parent, file, process, procType, bookId, width, height);
         }
     }
 
@@ -164,15 +168,15 @@ public class BookDownloader {
             logger.error(ex);
             System.exit(2);
         }
-        String oldDepagination = Depagination.STANDARD.toString();
+        Depagination oldDepagination = Depagination.STANDARD;
         setIndeterminated(true);
-        boolean loaded=false;
+        boolean loaded = false;
         if (useCache && hasCache(id)) {
             try {
                 // Load book from cache
                 loadBook();
                 if (book != null) {
-                    oldDepagination = book.getDepagination().toString();
+//                    oldDepagination = book.getDepagination();
                     book.guessDepagination();
                     for (String p : book.getPages()) {
                         if (p.contains("<img")) {
@@ -183,14 +187,14 @@ public class BookDownloader {
                 }
                 propertyChangeSupport.firePropertyChange(PROP_AUTHOR, "", book.getCorrectAuthor());
                 propertyChangeSupport.firePropertyChange(PROP_TITLE, "", book.getCorrectAuthor());
-                propertyChangeSupport.firePropertyChange(PROP_DEPAGINATION, oldDepagination, book.getDepagination().toString());
-                loaded=true;
+                propertyChangeSupport.firePropertyChange(PROP_DEPAGINATION, oldDepagination, book.getDepagination());
+                loaded = true;
             } catch (JAXBException ex) {
                 logger.error("Cannot read cache file");
 //                throw new IOException(guiTexts.getString("CANT_READ_CACHE_FILE"), ex);
             }
         }
-        if(!loaded) {
+        if (!loaded) {
             setPageCount(0);
             setPagesGot(0);
             if (book != null) {
@@ -367,7 +371,7 @@ public class BookDownloader {
         File file = Util.cacheFile(id);
         book = (PbiBook) unmarshaller.unmarshal(file);
         setIndeterminated(false);
-        if(book.getPages()==null){
+        if (book.getPages() == null) {
             throw new JAXBException("Book without pages");
         }
         setPageCount(book.getPages().length);
@@ -379,11 +383,16 @@ public class BookDownloader {
         }
         setPagesGot(downloaded);
         setFinished(getPageCount() == getPagesGot());
+        try {
+            Files.setLastModifiedTime(file.toPath(), FileTime.fromMillis(System.currentTimeMillis()));
+        } catch (IOException ex) {
+        }
     }
 
-    public void exportAsEpub(File file) throws IOException {
+    public void exportAsEpub(JDialog parent, File file, boolean process, int procType, int bookId, int width, int height) throws
+            IOException {
         if (book != null) {
-            book.exportAsEpub(file);
+            book.exportAsEpub(parent, file, process, procType, bookId, width, height);
         }
     }
 
@@ -516,16 +525,16 @@ public class BookDownloader {
         propertyChangeSupport.firePropertyChange(PROP_TITLE, oldTitle, title);
     }
 
-    public String getDepagination() {
+    public Depagination getDepagination() {
         if (book != null) {
-            return book.getDepagination().toString();
+            return book.getDepagination();
         }
-        return Depagination.STANDARD.toString();
+        return Depagination.STANDARD;
     }
 
-    public void setDepagination(String val) {
-        java.lang.String oldDep = book == null ? Depagination.STANDARD.toString() : book.getDepagination().toString();
-        Depagination d = Depagination.fromLocalName(val);
+    public void setDepagination(Depagination val) {
+        Depagination oldDep = book == null ? Depagination.STANDARD : book.getDepagination();
+        Depagination d = val;
         if (book != null) {
             book.setDepagination(d);
         }

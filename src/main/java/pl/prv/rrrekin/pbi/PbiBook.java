@@ -15,6 +15,7 @@
  */
 package pl.prv.rrrekin.pbi;
 
+import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -25,15 +26,29 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
+import javax.swing.ProgressMonitor;
+import javax.swing.SwingWorker;
 import javax.swing.text.html.HTML;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -69,6 +84,7 @@ public class PbiBook {
     private String[] contents;
     private Integer[] contentsPages;
     private Depagination depagination = Depagination.NONE;
+    private static final ResourceBundle guiTexts = ResourceBundle.getBundle("pl/prv/rrrekin/pbi/gui");
 
     /**
      * @return the id
@@ -147,192 +163,354 @@ public class PbiBook {
         this.contentsPages = contentsPages;
     }
 
-    void exportAsHtml(File file) throws IOException {
+    void exportAsHtml(final JDialog parent, final File file, final boolean process, final int procType, final int bookId,
+            final int width, final int height) throws
+            IOException {
 //        File file = new File(String.format("%d.html", id));
-        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-            String html = buildHtml(false).html();
-            out.write(html.getBytes(StandardCharsets.UTF_8));
+        final Document document = buildHtml(false);
+        final Elements imageElements = document.select("img");
+        final int barSize = imageElements.size();
+
+        final JDialog dialog = barSize > 2 ? new JDialog(parent, guiTexts.getString("SAVE_PROGRES_TITLE"), true) : null;
+        final JProgressBar bar = barSize > 2 ? new JProgressBar(0, barSize) : null;
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            IOException ex = null;
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    int i = 0;
+                    // Prepare dir
+                    String basename = file.getName().replaceFirst("(?i)\\.(htm|html)$", "") + "-img";
+                    File imageDir = new File(file.getParent(), basename);
+                    if (barSize > 0) {
+                        imageDir.mkdirs();
+                    }
+//                    File logo = new File(imageDir, Util.LOGO_FILE.getName());
+//                    Files.copy(Paths.get(Util.LOGO_FILE.toURI()), Paths.get(logo.toURI()), StandardCopyOption.REPLACE_EXISTING);
+
+                    // Copy rest of images
+                    for (Element image : imageElements) {
+                        String fileName = image.attr("src").replaceFirst(".*/", "");
+                        try {
+                            URL fileUrl = Util.prepareImageFile(fileName, process, procType, bookId, width, height);
+                            final String targetFileName = fileUrl.toString().replaceFirst(".*/", "");
+                            Files.copy(Paths.get(fileUrl.toURI()), Paths.get((new File(imageDir, targetFileName)).toURI()),
+                                    StandardCopyOption.REPLACE_EXISTING);
+                            image.attr("src", basename + "/" + targetFileName);
+                        } catch (MalformedURLException ex) {
+                            logger.warn("Invalid URL", ex);
+                        }
+                        if (bar != null) {
+                            bar.setValue(i++);
+                        }
+                    }
+                    // Save hatml
+                    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
+                        String html = document.html();
+                        out.write(html.getBytes(StandardCharsets.UTF_8));
+                    }
+
+                } catch (IOException e) {
+                    logger.error(null, e);
+                    ex = e;
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                if (dialog != null) {
+                    dialog.setVisible(false);
+                    dialog.dispose();
+                }
+                if (ex != null) {
+                    // display error
+                    JOptionPane.showMessageDialog(parent,
+                            ex.getCause() == null ? ex.getLocalizedMessage() :
+                            ex.getLocalizedMessage() + "\n" + ex.getCause().
+                            getLocalizedMessage(), guiTexts.getString("SAVE_ERROR"), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+        };
+        worker.execute();
+        if (dialog != null) {
+            dialog.setMinimumSize(new Dimension(200, 5));
+            dialog.setLocationByPlatform(true);
+
+            dialog.add(bar);
+            dialog.setVisible(true);
         }
     }
 
-    void exportAsEpub(File file) throws IOException {
+    void exportAsEpub(final JDialog parent, final File file, final boolean process, final int procType, final int bookId,
+            final int width, final int height) throws
+            IOException {
         // https://www.ibm.com/developerworks/xml/tutorials/x-epubtut/
         // http://webdesign.about.com/od/epub/a/build-an-epub.htm
 //        File file = new File(String.format("%d.epub", id));
-        final ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
-        out.setLevel(9);
-        Charset chSet = Charset.forName("UTF-8");
+        final Document document = buildHtml(false);
+        final Elements imageElements = document.select("img");
+        final int barSize = imageElements.size();
 
-        final byte[] mimetype = "application/epub+zip".getBytes(chSet);
+        final JDialog dialog = barSize > 2 ? new JDialog(parent, guiTexts.getString("SAVE_PROGRES_TITLE"), true) : null;
+        final JProgressBar bar = barSize > 2 ? new JProgressBar(0, barSize) : null;
+        SwingWorker<Void, Void> worker
+                = new SwingWorker<Void, Void>() {
+                    IOException ex = null;
 
-        ZipEntry zipEntry = new ZipEntry("mimetype");
-        zipEntry.setMethod(STORED);
-        zipEntry.setCompressedSize(mimetype.length);
-        zipEntry.setSize(mimetype.length);
-        CRC32 crc = new CRC32();
-        crc.update(mimetype);
-        zipEntry.setCrc(crc.getValue());
-        out.putNextEntry(zipEntry);
-        out.write(mimetype);
-        out.closeEntry();
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        try {
+                            int i = 0;
+                            ArrayList<URL> imagesToInclude = new ArrayList<URL>();
+                            // Prepare images
+                            for (Element image : imageElements) {
+                                String fileName = image.attr("src").replaceFirst(".*/", "");
+                                try {
+                                    URL fileUrl = Util.prepareImageFile(fileName, process, procType, bookId, width, height);
+                                    imagesToInclude.add(fileUrl);
+                                    image.attr("src", "images/" + fileUrl.toString().replaceFirst(".*/", ""));
+                                } catch (MalformedURLException ex) {
+                                    logger.warn("Invalid URL", ex);
+                                }
+                                if (bar != null) {
+                                    bar.setValue(i++);
+                                }
+                            }
 
-        out.putNextEntry(new ZipEntry("META-INF/container.xml"));
-        out.write(("<?xml version=\"1.0\"?>\n" +
-                "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">\n" +
-                "  <rootfiles>\n" +
-                "    <rootfile full-path=\"OEBPS/content.opf\"\n" +
-                "     media-type=\"application/oebps-package+xml\" />\n" +
-                "  </rootfiles>\n" +
-                "</container>").getBytes(chSet));
-        out.closeEntry();
+                            final ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
+                            out.setLevel(9);
+                            Charset chSet = Charset.forName("UTF-8");
 
-        out.putNextEntry(new ZipEntry("OEBPS/content.opf"));
-        out.write(("<?xml version='1.0' encoding='utf-8'?>\n" +
-                "<package xmlns=\"http://www.idpf.org/2007/opf\"\n" +
-                "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n" +
-                "            unique-identifier=\"bookid\" version=\"2.0\">\n" +
-                "  <metadata  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:opf=\"http://www.idpf.org/2007/opf\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" +
-                "    <dc:title>" + StringEscapeUtils.escapeXml10(title) + "</dc:title>\n" +
-                "    <dc:creator>" + StringEscapeUtils.escapeXml10(getCorrectAuthor()) + "</dc:creator>\n" +
-                "    <dc:publisher>Klient PBI</dc:publisher>\n" +
-                "    <dc:identifier id=\"bookid\">urn:uuid:" + getUid() + "</dc:identifier>\n" +
-                "    <dc:language>pol</dc:language>\n" +
-                //                "    <meta name=\"cover\" content=\"cover-image\" />\n" +
-                "  </metadata>\n" +
-                "  <manifest>\n" +
-                "    <item id=\"ncx\" href=\"toc.ncx\" media-type=\"application/x-dtbncx+xml\"/>\n" +
-                "    <item id=\"cover\" href=\"title.xhtml\" media-type=\"application/xhtml+xml\"/>\n" +
-                "    <item id=\"toc\" href=\"toc.xhtml\" media-type=\"application/xhtml+xml\"/>\n" +
-                "    <item id=\"content\" href=\"content.xhtml\" media-type=\"application/xhtml+xml\"/>\n" +
-                //                "    <item id=\"cover-image\" href=\"images/cover.png\" media-type=\"image/png\"/>\n" +
-                "    <item id=\"css\" href=\"stylesheet.css\" media-type=\"text/css\"/>\n" +
-                "    <item id=\"logo\" href=\"images/pbi.gif\" media-type=\"image/gif\"/>\n" +
-                "  </manifest>\n" +
-                "  <spine toc=\"ncx\">\n" +
-                "    <itemref idref=\"cover\" linear=\"no\"/>\n" +
-                "    <itemref idref=\"toc\" linear=\"no\"/>\n" +
-                "    <itemref idref=\"content\"/>\n" +
-                "  </spine>\n" +
-                "  <guide>\n" +
-                "    <reference href=\"title.xhtml\" type=\"cover\" title=\"Okładka\"/>\n" +
-                "    <reference href=\"toc.xhtml\" type=\"toc\" title=\"Spis treści\"/>\n" +
-                "  </guide>\n" +
-                "</package>").getBytes(chSet));
-        out.closeEntry();
-        out.putNextEntry(new ZipEntry("OEBPS/title.xhtml"));
-        out.write(("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
-                "    <head>\n" +
-                "        <title>" + StringEscapeUtils.escapeXml10(title) + "</title>\n" +
-                "        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n" +
-                "        <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheet.css\"/> \n" +
-                "    </head>\n" +
-                "    <body>\n" +
-                "        <div class=\"logo\"><img src=\"images/pbi.gif\" alt=\"PBI\" /></div>\n" +
-                "        <h1>" + StringEscapeUtils.escapeXml10(title) + "</h1>\n" +
-                "        <h2>" + StringEscapeUtils.escapeXml10(getCorrectAuthor()) + "</h2>\n" +
-                "    </body>\n" +
-                "</html>").getBytes(chSet));
-        out.closeEntry();
-        out.putNextEntry(new ZipEntry("OEBPS/stylesheet.css"));
-        out.write(("body{\n" +
-                "    font-family: Vardana, Helvetica, sans-serif;\n" +
-                "    font-size: 10pt;\n" +
-                "}\n" +
-                ".logo {\n" +
-                "text-align: center;\n" +
-                "}\n" +
-                "h1{\n" +
-                "    font-size: 22pt;\n" +
-                "    text-align: center;\n" +
-                "    font-weight: bold;\n" +
-                "}\n" +
-                "h2{\n" +
-                "    font-size: 18pt;\n" +
-                "    text-align: center;\n" +
-                "    font-weight: bold;\n" +
-                "}\n" +
-                "h3{\n" +
-                "    font-size: 13pt;\n" +
-                "    text-align: center;\n" +
-                "    font-weight: bold;\n" +
-                "}\n" +
-                "h3{\n" +
-                "    font-size: 12pt;\n" +
-                "    text-align: center;\n" +
-                "    font-style: italic;\n" +
-                "}\n").getBytes(chSet));
-        if (depagination == Depagination.VERSE) {
-            out.write(("p { margin:0;text-indent:0;}").getBytes(chSet));
+                            final byte[] mimetype = "application/epub+zip".getBytes(chSet);
+
+                            ZipEntry zipEntry = new ZipEntry("mimetype");
+                            zipEntry.setMethod(STORED);
+                            zipEntry.setCompressedSize(mimetype.length);
+                            zipEntry.setSize(mimetype.length);
+                            CRC32 crc = new CRC32();
+                            crc.update(mimetype);
+                            zipEntry.setCrc(crc.getValue());
+                            out.putNextEntry(zipEntry);
+                            out.write(mimetype);
+                            out.closeEntry();
+
+                            out.putNextEntry(new ZipEntry("META-INF/container.xml"));
+                            out.write(("<?xml version=\"1.0\"?>\n" +
+                                    "<container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">\n" +
+                                    "  <rootfiles>\n" +
+                                    "    <rootfile full-path=\"OEBPS/content.opf\"\n" +
+                                    "     media-type=\"application/oebps-package+xml\" />\n" +
+                                    "  </rootfiles>\n" +
+                                    "</container>").getBytes(chSet));
+                            out.closeEntry();
+
+                            out.putNextEntry(new ZipEntry("OEBPS/content.opf"));
+                            out.write(("<?xml version='1.0' encoding='utf-8'?>\n" +
+                                    "<package xmlns=\"http://www.idpf.org/2007/opf\"\n" +
+                                    "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n" +
+                                    "            unique-identifier=\"bookid\" version=\"2.0\">\n" +
+                                    "  <metadata  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:opf=\"http://www.idpf.org/2007/opf\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" +
+                                    "    <dc:title>" + StringEscapeUtils.escapeXml10(title) + "</dc:title>\n" +
+                                    "    <dc:creator>" + StringEscapeUtils.escapeXml10(getCorrectAuthor()) + "</dc:creator>\n" +
+                                    "    <dc:publisher>Klient PBI</dc:publisher>\n" +
+                                    "    <dc:identifier id=\"bookid\">urn:uuid:" + getUid() + "</dc:identifier>\n" +
+                                    "    <dc:language>pol</dc:language>\n" +
+                                    //                "    <meta name=\"cover\" content=\"cover-image\" />\n" +
+                                    "  </metadata>\n" +
+                                    "  <manifest>\n" +
+                                    "    <item id=\"ncx\" href=\"toc.ncx\" media-type=\"application/x-dtbncx+xml\"/>\n" +
+                                    "    <item id=\"cover\" href=\"title.xhtml\" media-type=\"application/xhtml+xml\"/>\n" +
+                                    "    <item id=\"toc\" href=\"toc.xhtml\" media-type=\"application/xhtml+xml\"/>\n" +
+                                    "    <item id=\"content\" href=\"content.xhtml\" media-type=\"application/xhtml+xml\"/>\n" +
+                                    //                "    <item id=\"cover-image\" href=\"images/cover.png\" media-type=\"image/png\"/>\n" +
+                                    "    <item id=\"css\" href=\"stylesheet.css\" media-type=\"text/css\"/>\n" +
+                                    "    <item id=\"logo\" href=\"images/pbi.gif\" media-type=\"image/gif\"/>\n" +
+                                    "  </manifest>\n" +
+                                    "  <spine toc=\"ncx\">\n" +
+                                    "    <itemref idref=\"cover\" linear=\"no\"/>\n" +
+                                    "    <itemref idref=\"toc\" linear=\"no\"/>\n" +
+                                    "    <itemref idref=\"content\"/>\n" +
+                                    "  </spine>\n" +
+                                    "  <guide>\n" +
+                                    "    <reference href=\"title.xhtml\" type=\"cover\" title=\"Okładka\"/>\n" +
+                                    "    <reference href=\"toc.xhtml\" type=\"toc\" title=\"Spis treści\"/>\n" +
+                                    "  </guide>\n" +
+                                    "</package>").getBytes(chSet));
+                            out.closeEntry();
+                            out.putNextEntry(new ZipEntry("OEBPS/title.xhtml"));
+                            out.write(("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                    "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" +
+                                    "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
+                                    "    <head>\n" +
+                                    "        <title>" + StringEscapeUtils.escapeXml10(title) + "</title>\n" +
+                                    "        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n" +
+                                    "        <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheet.css\"/> \n" +
+                                    "    </head>\n" +
+                                    "    <body>\n" +
+                                    "        <div class=\"logo\"><img src=\"images/pbi.gif\" alt=\"PBI\" /></div>\n" +
+                                    "        <h1>" + StringEscapeUtils.escapeXml10(title) + "</h1>\n" +
+                                    "        <h2>" + StringEscapeUtils.escapeXml10(getCorrectAuthor()) + "</h2>\n" +
+                                    "    </body>\n" +
+                                    "</html>").getBytes(chSet));
+                            out.closeEntry();
+                            out.putNextEntry(new ZipEntry("OEBPS/stylesheet.css"));
+                            out.write(("body{\n" +
+                                    "    font-family: Vardana, Helvetica, sans-serif;\n" +
+                                    "    font-size: 10pt;\n" +
+                                    "}\n" +
+                                    ".logo {\n" +
+                                    "text-align: center;\n" +
+                                    "}\n" +
+                                    "h1{\n" +
+                                    "    font-size: 22pt;\n" +
+                                    "    text-align: center;\n" +
+                                    "    font-weight: bold;\n" +
+                                    "}\n" +
+                                    "h2{\n" +
+                                    "    font-size: 18pt;\n" +
+                                    "    text-align: center;\n" +
+                                    "    font-weight: bold;\n" +
+                                    "}\n" +
+                                    "h3{\n" +
+                                    "    font-size: 13pt;\n" +
+                                    "    text-align: center;\n" +
+                                    "    font-weight: bold;\n" +
+                                    "}\n" +
+                                    "h3{\n" +
+                                    "    font-size: 12pt;\n" +
+                                    "    text-align: center;\n" +
+                                    "    font-style: italic;\n" +
+                                    "}\n").getBytes(chSet));
+                            if (depagination == Depagination.VERSE) {
+                                out.write(("p { margin:0;text-indent:0;}").getBytes(chSet));
+                            }
+                            out.closeEntry();
+
+                            out.putNextEntry(new ZipEntry("OEBPS/toc.xhtml"));
+                            String html = buildTocHtml();
+                            out.write(html.getBytes(chSet));
+                            out.closeEntry();
+
+                            out.putNextEntry(new ZipEntry("OEBPS/content.xhtml"));
+                            html = document.html();
+                            out.write(html.getBytes(chSet));
+                            out.closeEntry();
+
+                            out.putNextEntry(new ZipEntry("OEBPS/toc.ncx"));
+                            out.write(("<?xml version='1.0' encoding='utf-8'?>\n" +
+                                    "<!DOCTYPE ncx PUBLIC \"-//NISO//DTD ncx 2005-1//EN\"\n" +
+                                    "                 \"http://www.daisy.org/z3986/2005/ncx-2005-1.dtd\">\n" +
+                                    "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\">\n" +
+                                    "  <head>\n" +
+                                    "    <meta name=\"dtb:uid\" content=\"urn:uuid:" + getUid() + "\"/>\n" +
+                                    "    <meta content=\"Klient PBI\" name=\"dtb:generator\"/>\n" +
+                                    "    <meta name=\"dtb:depth\" content=\"1\"/>\n" +
+                                    "    <meta name=\"dtb:totalPageCount\" content=\"0\"/>\n" +
+                                    "    <meta name=\"dtb:maxPageNumber\" content=\"0\"/>\n" +
+                                    "  </head>\n" +
+                                    "  <docTitle>\n" +
+                                    "    <text>" + StringEscapeUtils.escapeXml10(title) + "</text>\n" +
+                                    "  </docTitle>\n" +
+                                    "  <navMap>\n" +
+                                    "    <navPoint id=\"navpoint-1\" playOrder=\"1\">\n" +
+                                    "      <navLabel>\n" +
+                                    "        <text>Strona tytułowa</text>\n" +
+                                    "      </navLabel>\n" +
+                                    "      <content src=\"title.xhtml\"/>\n" +
+                                    "    </navPoint>\n" +
+                                    "    <navPoint id=\"navpoint-2\" playOrder=\"2\">\n" +
+                                    "      <navLabel>\n" +
+                                    "        <text>Spis treści</text>\n" +
+                                    "      </navLabel>\n" +
+                                    "      <content src=\"toc.xhtml\"/>\n" +
+                                    "    </navPoint>\n" +
+                                    "    <navPoint id=\"navpoint-3\" playOrder=\"3\">\n" +
+                                    "      <navLabel>\n" +
+                                    "        <text>Treść</text>\n" +
+                                    "      </navLabel>\n" +
+                                    "      <content src=\"content.xhtml\"/>\n" +
+                                    "    </navPoint>\n" +
+                                    "  </navMap>\n</ncx>").getBytes(chSet));
+                            out.closeEntry();
+
+                            File logo = Util.LOGO_FILE;
+                            zipEntry = new ZipEntry("OEBPS/images/pbi.gif");
+                            zipEntry.setMethod(STORED);
+                            final int length = (int) logo.length();
+                            zipEntry.setCompressedSize(length);
+                            zipEntry.setSize(length);
+                            crc = new CRC32();
+                            byte[] buff = new byte[length];
+                            try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(logo))) {
+                                in.read(buff);
+                                crc.update(buff);
+                            }
+                            zipEntry.setCrc(crc.getValue());
+                            out.putNextEntry(zipEntry);
+                            out.write(buff);
+                            out.closeEntry();
+
+                            for (URL image : imagesToInclude) {
+                                try {
+                                    String filename = image.toString().replaceFirst(".*/", "");
+                                    File imageFile = new File(image.toURI());
+                                    zipEntry = new ZipEntry("OEBPS/images/" + filename);
+                                    zipEntry.setMethod(STORED);
+                                    int fileSize = (int) imageFile.length();
+                                    zipEntry.setCompressedSize(fileSize);
+                                    zipEntry.setSize(fileSize);
+                                    crc = new CRC32();
+                                    buff = new byte[fileSize];
+                                    try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(imageFile))) {
+                                        in.read(buff);
+                                        crc.update(buff);
+                                    }
+                                    zipEntry.setCrc(crc.getValue());
+                                    out.putNextEntry(zipEntry);
+                                    out.write(buff);
+                                    out.closeEntry();
+
+                                } catch (URISyntaxException ex) {
+                                    logger.error(null, ex);
+                                }
+                            }
+
+                            out.close();
+                        } catch (IOException e) {
+                            logger.error(null, e);
+                            ex = e;
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        if (dialog != null) {
+                            dialog.setVisible(false);
+                            dialog.dispose();
+                        }
+                        if (ex != null) {
+                            // display error
+                            JOptionPane.showMessageDialog(parent,
+                                    ex.getCause() == null ? ex.getLocalizedMessage() :
+                                    ex.getLocalizedMessage() + "\n" + ex.getCause().
+                                    getLocalizedMessage(), guiTexts.getString("SAVE_ERROR"), JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+
+                };
+        worker.execute();
+        if (dialog != null) {
+            dialog.setMinimumSize(new Dimension(200, 5));
+            dialog.setLocationByPlatform(true);
+
+            dialog.add(bar);
+            dialog.setVisible(true);
         }
-        out.closeEntry();
 
-        out.putNextEntry(new ZipEntry("OEBPS/toc.xhtml"));
-        String html = buildTocHtml();
-        out.write(html.getBytes(chSet));
-        out.closeEntry();
-
-        out.putNextEntry(new ZipEntry("OEBPS/content.xhtml"));
-        html = buildHtml(false).html();
-        out.write(html.getBytes(chSet));
-        out.closeEntry();
-
-        out.putNextEntry(new ZipEntry("OEBPS/toc.ncx"));
-        out.write(("<?xml version='1.0' encoding='utf-8'?>\n" +
-                "<!DOCTYPE ncx PUBLIC \"-//NISO//DTD ncx 2005-1//EN\"\n" +
-                "                 \"http://www.daisy.org/z3986/2005/ncx-2005-1.dtd\">\n" +
-                "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\">\n" +
-                "  <head>\n" +
-                "    <meta name=\"dtb:uid\" content=\"urn:uuid:" + getUid() + "\"/>\n" +
-                "    <meta content=\"Klient PBI\" name=\"dtb:generator\"/>\n" +
-                "    <meta name=\"dtb:depth\" content=\"1\"/>\n" +
-                "    <meta name=\"dtb:totalPageCount\" content=\"0\"/>\n" +
-                "    <meta name=\"dtb:maxPageNumber\" content=\"0\"/>\n" +
-                "  </head>\n" +
-                "  <docTitle>\n" +
-                "    <text>" + StringEscapeUtils.escapeXml10(title) + "</text>\n" +
-                "  </docTitle>\n" +
-                "  <navMap>\n" +
-                "    <navPoint id=\"navpoint-1\" playOrder=\"1\">\n" +
-                "      <navLabel>\n" +
-                "        <text>Strona tytułowa</text>\n" +
-                "      </navLabel>\n" +
-                "      <content src=\"title.xhtml\"/>\n" +
-                "    </navPoint>\n" +
-                "    <navPoint id=\"navpoint-2\" playOrder=\"2\">\n" +
-                "      <navLabel>\n" +
-                "        <text>Spis treści</text>\n" +
-                "      </navLabel>\n" +
-                "      <content src=\"toc.xhtml\"/>\n" +
-                "    </navPoint>\n" +
-                "    <navPoint id=\"navpoint-3\" playOrder=\"3\">\n" +
-                "      <navLabel>\n" +
-                "        <text>Treść</text>\n" +
-                "      </navLabel>\n" +
-                "      <content src=\"content.xhtml\"/>\n" +
-                "    </navPoint>\n" +
-                "  </navMap>\n</ncx>").getBytes(chSet));
-        out.closeEntry();
-
-        File logo = Util.LOGO_FILE;
-        zipEntry = new ZipEntry("OEBPS/images/pbi.gif");
-        zipEntry.setMethod(STORED);
-        final int length = (int) logo.length();
-        zipEntry.setCompressedSize(length);
-        zipEntry.setSize(length);
-        crc = new CRC32();
-        byte[] buff = new byte[length];
-        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(logo))) {
-            in.read(buff);
-            crc.update(buff);
-        }
-        zipEntry.setCrc(crc.getValue());
-        out.putNextEntry(zipEntry);
-        out.write(buff);
-        out.closeEntry();
-
-        out.close();
     }
 
     public Document buildHtml(boolean preview) {
@@ -345,23 +523,28 @@ public class PbiBook {
         // Join paragraphs when the las one is terminated with letter or digit (for non-verse)
         for (String page : pages) {
             boolean done = false;
+//            System.out.println("Using " + depagination);
             if (depagination != Depagination.VERSE && depagination != Depagination.NONE) {
                 // Remove empty paragraphs at the end of file
                 if (!body.children().isEmpty()) {
+//                    System.out.println("Entering body");
                     Element last;
                     last = body.children().last();
-                    final String txt = last.text().trim();
-                    if (isEmptyPar(txt)) {
+                    if (isEmptyPar(last.text().trim()) && last.select("img").isEmpty()) {
+//                        System.out.println("removing " + last);
                         last.remove();
                         last = body.children().last();
                     }
-                    if (i > 2 && !last.text().matches(".+[.:?!\"'](\\s| )*$")) { // Need to append nest paragraph to the last one
-//                        System.out.println("Found: " + last.text().substring(Math.max(0,last.text().length() - 20)));
+                    if (i > 2 && last != null && last.select("img").isEmpty() && !last.text().matches(".+[.:?!\"'](\\s| )*$")) { // Need to append nest paragraph to the last one
+//                        System.out.println("Found: " + last.text().substring(Math.max(0, last.text().length() - 20)));
                         Elements elements = Jsoup.parseBodyFragment(page).body().children();
                         boolean first = true;
                         for (Element e : elements) {
                             if (first) {
-                                if (!isEmptyPar(e.text().trim())) {
+                                if (!e.select("img").isEmpty()) {
+                                    first = false;
+                                    body.appendChild(e);
+                                } else if (!isEmptyPar(e.text().trim())) {
                                     first = false;
                                     last.append(" " + e.html());
                                     last.appendElement("a").attr("id", "pg" + i);
@@ -371,10 +554,6 @@ public class PbiBook {
                             }
                         }
                         done = true;
-//                    } else {
-//                        if (last != null) {
-//                            System.out.println(last.text().substring(Math.max(0,last.text().length() - 20))+"<<<<<<");
-//                        }
                     }
                 }
             }
@@ -392,7 +571,7 @@ public class PbiBook {
             if (preview && i > 5) {
                 break;
             }
-        }
+        } // END of loop
         body.select("div").tagName("p");
 
         switch (depagination) {
@@ -401,7 +580,7 @@ public class PbiBook {
                 // verse (leave empty lines with non-breaking space)'
                 for (Element par : body.select("p")) {
                     final String cnt = par.text().trim();
-                    if (cnt.isEmpty() || cnt.equals(" ")) {
+                    if ((cnt.isEmpty() || cnt.equals(" ")) && par.select("img").isEmpty()) {
                         par.html("&nbsp;");
                     } else {
                         String txt = par.html();
@@ -420,7 +599,7 @@ public class PbiBook {
                 // Remove empty paragraphs, 
                 for (Element par : body.select("p")) {
                     final String cnt = par.text().trim();
-                    if (isEmptyPar(cnt)) {
+                    if (isEmptyPar(cnt) && par.select("img").isEmpty()) {
                         par.remove();
                     } else {
                         String txt = par.html();

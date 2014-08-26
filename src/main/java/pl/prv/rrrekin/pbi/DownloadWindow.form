@@ -61,6 +61,10 @@
                   <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileFormat" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="saveButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
@@ -100,6 +104,8 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="saveButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileFormat" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -144,14 +150,14 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="authorName"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="pl/prv/rrrekin/pbi/gui.properties" key="AUTHOR" replaceFormat="guiTexts.getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
       </Properties>
-      <BindingProperties>
-        <BindingProperty name="labelFor" source="authorName" target="jLabel1" targetPath="labelFor" updateStrategy="0" immediately="false"/>
-      </BindingProperties>
     </Component>
     <Component class="javax.swing.JTextField" name="authorName">
       <Properties>
@@ -177,19 +183,19 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="depagination"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="pl/prv/rrrekin/pbi/gui.properties" key="JOINING_PAGES" replaceFormat="guiTexts.getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="name" type="java.lang.String" value="jLabel2" noResource="true"/>
       </Properties>
-      <BindingProperties>
-        <BindingProperty name="labelFor" source="depagination" target="jLabel2" targetPath="labelFor" updateStrategy="0" immediately="false"/>
-      </BindingProperties>
     </Component>
     <Component class="javax.swing.JComboBox" name="depagination">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="new DefaultComboBoxModel(Depagination.localValues())" type="code"/>
+          <Connection code="new EnumComboBoxModel&lt;Depagination&gt;(Depagination.NONE)" type="code"/>
         </Property>
         <Property name="name" type="java.lang.String" value="depagination" noResource="true"/>
       </Properties>
@@ -326,13 +332,15 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
+            <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="picWidth"/>
+            </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="pl/prv/rrrekin/pbi/gui.properties" key="MAX_PIC_DIMENSION" replaceFormat="guiTexts.getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="name" type="java.lang.String" value="jLabel4" noResource="true"/>
           </Properties>
           <BindingProperties>
-            <BindingProperty name="labelFor" source="picWidth" target="jLabel4" targetPath="labelFor" updateStrategy="0" immediately="false"/>
             <BindingProperty name="enabled" source="enableImageProcessing" sourcePath="${selected}" target="jLabel4" targetPath="enabled" updateStrategy="0" immediately="false"/>
           </BindingProperties>
         </Component>
@@ -349,20 +357,22 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel5">
           <Properties>
+            <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="colorReduction"/>
+            </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="pl/prv/rrrekin/pbi/gui.properties" key="COLOR_REDUCTION" replaceFormat="guiTexts.getString(&quot;{key}&quot;)"/>
             </Property>
             <Property name="name" type="java.lang.String" value="jLabel5" noResource="true"/>
           </Properties>
           <BindingProperties>
-            <BindingProperty name="labelFor" source="colorReduction" target="jLabel5" targetPath="labelFor" updateStrategy="0" immediately="false"/>
             <BindingProperty name="enabled" source="enableImageProcessing" sourcePath="${selected}" target="jLabel5" targetPath="enabled" updateStrategy="0" immediately="false"/>
           </BindingProperties>
         </Component>
         <Component class="javax.swing.JComboBox" name="colorReduction">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="new javax.swing.DefaultComboBoxModel(new String[] { guiTexts.getString(&quot;NO_REDUCTION&quot;), guiTexts.getString(&quot;GRAY2&quot;), guiTexts.getString(&quot;GRAY4&quot;), guiTexts.getString(&quot;GRAY16&quot;),guiTexts.getString(&quot;COLOR256&quot;) })" type="code"/>
+              <Connection code="new javax.swing.DefaultComboBoxModel(new String[] { guiTexts.getString(&quot;NO_REDUCTION&quot;), guiTexts.getString(&quot;GRAY2&quot;), guiTexts.getString(&quot;GRAY4&quot;), guiTexts.getString(&quot;GRAY16&quot;),guiTexts.getString(&quot;COLOR16&quot;),guiTexts.getString(&quot;COLOR256&quot;) })" type="code"/>
             </Property>
             <Property name="name" type="java.lang.String" value="colorReduction" noResource="true"/>
           </Properties>
@@ -397,11 +407,33 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel6">
           <Properties>
+            <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="picHeight"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="x"/>
             <Property name="name" type="java.lang.String" value="jLabel6" noResource="true"/>
           </Properties>
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JComboBox" name="fileFormat">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="new EnumComboBoxModel&lt;EbookFileFormats&gt;(EbookFileFormats.EPUB)" type="code"/>
+        </Property>
+        <Property name="name" type="java.lang.String" value="fileFormat" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel7">
+      <Properties>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="fileFormat"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="pl/prv/rrrekin/pbi/gui.properties" key="FILE_FORMAT" replaceFormat="guiTexts.getString(&quot;{key}&quot;)"/>
+        </Property>
+        <Property name="name" type="java.lang.String" value="jLabel7" noResource="true"/>
+      </Properties>
+    </Component>
   </SubComponents>
 </Form>

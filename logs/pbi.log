@@ -1,1 +1,3 @@
 2014-08-22 10:38:41,063 INFO  [AWT-EventQueue-0] pl.prv.rrrekin.pbi.MainWindow  Started. Using URL http://www.pbi.edu.pl/
+2014-08-26 07:28:09,133 DEBUG [AWT-EventQueue-0] pl.prv.rrrekin.pbi.MainWindow  Removing version button
+2014-08-26 07:28:09,169 INFO  [AWT-EventQueue-0] pl.prv.rrrekin.pbi.MainWindow  Started. Using URL http://www.pbi.edu.pl/

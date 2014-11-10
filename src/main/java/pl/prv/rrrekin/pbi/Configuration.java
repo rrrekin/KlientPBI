@@ -182,11 +182,11 @@ public class Configuration {
         } catch (NumberFormatException ex) {
         }
         try {
-            threads = new Integer(props.getProperty(PARAM_THREADS, threads.toString()));
+            threads = Integer.valueOf(props.getProperty(PARAM_THREADS, threads.toString()));
         } catch (NumberFormatException ex) {
         }
         try {
-            maxCacheDays = new Integer(props.getProperty(PARAM_MAXCACHEDAYS, maxCacheDays.toString()));
+            maxCacheDays =  Integer.valueOf(props.getProperty(PARAM_MAXCACHEDAYS, maxCacheDays.toString()));
         } catch (NumberFormatException ex) {
         }
     }

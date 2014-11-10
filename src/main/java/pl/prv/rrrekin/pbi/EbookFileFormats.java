@@ -15,7 +15,6 @@
  */
 package pl.prv.rrrekin.pbi;
 
-import java.util.Properties;
 import java.util.ResourceBundle;
 
 /**
@@ -24,37 +23,29 @@ import java.util.ResourceBundle;
  */
 public enum EbookFileFormats {
 
-    EPUB, HTML;//, MOBI;
+    EPUB, HTML;
 
-    private static final ResourceBundle guiTexts = ResourceBundle.getBundle("pl/prv/rrrekin/pbi/gui");
-    private final static String[] names = guiTexts.getString("EBOOK_FILE_FORMATS").split("\\|");
-    private final static String[] extensions = "epub|html|mobi".split("\\|");
-    private final static String[] descriptions = guiTexts.getString("EBOOK_FILE_DESC").split("\\|");
-    private final static String[] re = ".*\\.epub#.*\\.(html|htm)#.*\\.mobi".split("#");
-    
+    private static final ResourceBundle GUI_TEXTS = ResourceBundle.getBundle("pl/prv/rrrekin/pbi/gui");
+    private static final String[] NAMES = GUI_TEXTS.getString("EBOOK_FILE_FORMATS").split("\\|");
+    private static final String[] EXTENSIONS = "epub|html|mobi".split("\\|");
+    private static final String[] DESCRIPTIONS = GUI_TEXTS.getString("EBOOK_FILE_DESC").split("\\|");
+    private static final String[] REGEXPS = ".*\\.epub#.*\\.(html|htm)#.*\\.mobi".split("#");
+
     @Override
     public String toString() {
-        return names[ordinal()];
-    }
-    
-    public String getExtension(){
-        return extensions[ordinal()];
+        return NAMES[ordinal()];
     }
 
-//    static{
-//        for(EbookFileFormats v:values()){
-//            System.out.println(v.name()+": "+v);
-//        }
-//    }
+    public String getExtension() {
+        return EXTENSIONS[ordinal()];
+    }
 
     String getFileDescription() {
-        return descriptions[ordinal()];
+        return DESCRIPTIONS[ordinal()];
     }
 
     String getFormatRegExp() {
-        return re[ordinal()];
+        return REGEXPS[ordinal()];
     }
-    
-   
 
 }

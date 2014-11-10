@@ -200,6 +200,8 @@ public class PbiBook {
                             image.attr("src", basename + "/" + targetFileName);
                         } catch (MalformedURLException ex) {
                             logger.warn("Invalid URL", ex);
+                        } catch (IOException ex) {
+                            logger.warn("IO problem", ex);
                         }
                         if (bar != null) {
                             bar.setValue(i++);
@@ -274,6 +276,8 @@ public class PbiBook {
                                     image.attr("src", "images/" + fileUrl.toString().replaceFirst(".*/", ""));
                                 } catch (MalformedURLException ex) {
                                     logger.warn("Invalid URL", ex);
+                                } catch (IOException ex) {
+                                    logger.warn("IO problem", ex);
                                 }
                                 if (bar != null) {
                                     bar.setValue(i++);

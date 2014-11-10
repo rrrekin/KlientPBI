@@ -577,6 +577,8 @@ public class DownloadWindow extends javax.swing.JDialog {
 //                    System.out.println(fileUrl);
                 } catch (MalformedURLException ex) {
                     logger.warn("Invalid URL", ex);
+                } catch (IOException ex) {
+                    logger.warn("IO problem", ex);
                 }
             }
             previewArea.setText(doc.toString().replaceAll("&apos;", "'"));

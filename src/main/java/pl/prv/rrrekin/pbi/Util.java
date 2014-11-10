@@ -23,13 +23,11 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.RescaleOp;
 import java.io.File;
+import java.io.IOError;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.Map;
 import javax.imageio.ImageIO;
-import javax.swing.UIManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,6 +39,9 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id: $Id
  */
 public class Util {
+
+    private Util() {
+    }
 
     /**
      * Configuration file name.
@@ -54,62 +55,70 @@ public class Util {
     /**
      * Default URL value for PBI as URL object.
      */
-    public static URL DEFAULT_URL;
-    public final static File CACHE_DIR;
-    public final static File CACHE_IMAGES;
-    public final static File LOGO_FILE;
+    public static final URL DEFAULT_URL;
+    public static final File CACHE_DIR;
+    public static final File CACHE_IMAGES;
+    public static final File LOGO_FILE;
     static String EMPTY_HTML
             = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\"><html xmlns=\"http://www.w3.org/1999/xhtml\"></html>";
 
-    private static final Log logger = LogFactory.getLog(Util.class);
+    private static final Log LOGGER = LogFactory.getLog(Util.class);
     static String VERSION_URL = "http://rrrekin.github.io/KlientPBI/last_version";
     private static File imagesDir;
+    private static final String USERHOME = "user.home";
+    private static final String KLIENT_PBI_FOLDERNAME = "Klient PBI";
 
     static {
+        URL url = null;
         try {
-            DEFAULT_URL = new URL(DEFAULT_URL_STRING);
-            DEFAULT_URL.openConnection().connect();
+            url = new URL(DEFAULT_URL_STRING);
+            url.openConnection().connect();
         } catch (MalformedURLException ex) {
-            logger.fatal(ex.getLocalizedMessage());
+            LOGGER.fatal(ex.getLocalizedMessage());
             System.exit(1);
         } catch (IOException ex) {
-            logger.error("Cannot connect to the default PBI URL: " + ex.getLocalizedMessage() + ". Using fallback URL.");
+            LOGGER.error("Cannot connect to the default PBI URL: " + ex.getLocalizedMessage() + ". Using fallback URL.");
             try {
-                DEFAULT_URL = new URL(FALLBACK_URL_STRING);
+                url = new URL(FALLBACK_URL_STRING);
             } catch (MalformedURLException ex1) {
-                logger.fatal(ex.getLocalizedMessage());
+                LOGGER.fatal(ex.getLocalizedMessage());
                 System.exit(1);
             }
         }
+        DEFAULT_URL = url;
 
         File dir;
         // Try Windows App Data dir.
         String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("windows")) { // Windows
+        if (os.contains("windows")) {
+            // Windows
             String dataFolder = System.getenv("APPDATA");
             if (dataFolder == null) {
-                dataFolder = System.getProperty("user.home") + "\\Local Settings\\Application Data";
+                dataFolder = System.getProperty(USERHOME) + "\\Local Settings\\Application Data";
             }
             dir = new File(dataFolder);
-//            if (!(dir.exists() && dir.isDirectory())) {
-//                dir = new File(System.getProperty("user.home"));
-//            }
-            dir = new File(dir, "Klient PBI");
+            dir = new File(dir, KLIENT_PBI_FOLDERNAME);
 
-        } else if (os.contains("mac")) { // Mac OS '~/Library/Caches'
-            dir = new File(System.getProperty("user.home"), "Library");
+        } else if (os.contains("mac")) {
+            // Mac OS '~/Library/Caches'
+            dir = new File(System.getProperty(USERHOME), "Library");
             dir = new File(dir, "Caches");
-            dir = new File(dir, "Klient PBI");
-        } else { // Unices '~/.cache'
-            dir = new File(System.getProperty("user.home"), ".cache");
-            dir = new File(dir, "Klient PBI");
+            dir = new File(dir, KLIENT_PBI_FOLDERNAME);
+        } else {
+            // Unices '~/.cache'
+            dir = new File(System.getProperty(USERHOME), ".cache");
+            dir = new File(dir, KLIENT_PBI_FOLDERNAME);
         }
 
         if (dir.exists() && !dir.isDirectory()) {
-            dir.delete();
+            if (!dir.delete()) {
+                LOGGER.warn("Can't delete " + dir);
+            }
         }
         if (!dir.exists()) {
-            dir.mkdirs();
+            if (dir.mkdirs()) {
+                LOGGER.warn("Can't create " + dir);
+            }
         }
 
         CACHE_DIR = dir;
@@ -139,7 +148,7 @@ public class Util {
             Class.forName("pl.prv.rrrekin.pbi.URLValidator");
             Class.forName("pl.prv.rrrekin.pbi.models.SearchResultModel");
         } catch (ClassNotFoundException ex) {
-            logger.info(ex.getLocalizedMessage());
+            LOGGER.info(ex.getLocalizedMessage());
         }
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
 
@@ -166,23 +175,24 @@ public class Util {
                 }
             }
         } catch (final IOException ex) {
-            // throw new RuntimeException("Quantizer failed" + e.getMessage());
-            // // Should never happen so no RuntimeException
-            logger.error(null, ex);
+            // Should never happen so no RuntimeException
+            LOGGER.error(null, ex);
         }
 
         return image;
     }
 
     static URL prepareImageFile(String fileName, boolean process, int processType, int bookId, final int desWidth, int desHeight)
-            throws MalformedURLException {
+            throws MalformedURLException, IOException {
         if (imagesDir == null) {
             imagesDir = new File(Util.CACHE_IMAGES, Integer.toString(bookId));
         }
         if (process) {
             String processedSubdir = String.format("C%d-%dx%d", processType, desWidth, desHeight);
             File outDir = new File(imagesDir, processedSubdir);
-            outDir.mkdirs();
+            if (!outDir.mkdirs()) {
+                throw new IOException("Cannot create cache directory");
+            }
             String newFilename;
             if (processType != 0) {
                 newFilename = fileName.replaceFirst("\\.[^.]*", ".png");
@@ -197,6 +207,7 @@ public class Util {
             }
 
             return outFile.toURI().toURL();
+
         } else {
             return (new File(imagesDir, fileName)).toURI().toURL();
         }
@@ -225,7 +236,7 @@ public class Util {
                     try {
                         ImageIO.write(resizedImage, "jpeg", outFile);
                     } catch (IOException ex) {
-                        logger.error("Unable to write output image", ex);
+                        LOGGER.error("Unable to write output image", ex);
                     }
                     break;
                 }
@@ -239,7 +250,7 @@ public class Util {
                     try {
                         ImageIO.write(bitmap, "png", outFile);
                     } catch (IOException ex) {
-                        logger.error("Unable to write output image", ex);
+                        LOGGER.error("Unable to write output image", ex);
                     }
                     break;
                 }
@@ -254,7 +265,7 @@ public class Util {
                     try {
                         ImageIO.write(bitmap, "png", outFile);
                     } catch (IOException ex) {
-                        logger.error("Unable to write output image", ex);
+                        LOGGER.error("Unable to write output image", ex);
                     }
                     break;
                 }
@@ -269,7 +280,7 @@ public class Util {
                     try {
                         ImageIO.write(bitmap, "png", outFile);
                     } catch (IOException ex) {
-                        logger.error("Unable to write output image", ex);
+                        LOGGER.error("Unable to write output image", ex);
                     }
                     break;
                 }
@@ -284,10 +295,10 @@ public class Util {
                         try {
                             ImageIO.write(indexImage, "png", outFile);
                         } catch (IOException ex) {
-                            logger.error("Unable to write output image", ex);
+                            LOGGER.error("Unable to write output image", ex);
                         }
                     } catch (IOException ex) {
-                        logger.error("Unable to auantize image", ex);
+                        LOGGER.error("Unable to auantize image", ex);
                     }
 
                     break;
@@ -303,17 +314,17 @@ public class Util {
                         try {
                             ImageIO.write(indexImage, "png", outFile);
                         } catch (IOException ex) {
-                            logger.error("Unable to write output image", ex);
+                            LOGGER.error("Unable to write output image", ex);
                         }
                     } catch (IOException ex) {
-                        logger.error("Unable to auantize image", ex);
+                        LOGGER.error("Unable to auantize image", ex);
                     }
 
                     break;
                 }
             }
         } catch (IOException ex) {
-            logger.error("Unable to read input image", ex);
+            LOGGER.error("Unable to read input image", ex);
         }
     }
 

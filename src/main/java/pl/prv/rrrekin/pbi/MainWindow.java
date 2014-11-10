@@ -150,7 +150,6 @@ public class MainWindow extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Klient PBI"); // NOI18N
-        setIconImage(null);
         setMinimumSize(new java.awt.Dimension(400, 400));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -198,6 +197,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
+        resultTable.setAutoCreateRowSorter(true);
         resultTable.setModel(resultTableModel);
         resultTable.setName("resultTable"); // NOI18N
         resultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);

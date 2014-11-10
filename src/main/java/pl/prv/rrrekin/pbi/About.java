@@ -31,7 +31,7 @@ import javax.swing.event.HyperlinkListener;
  */
 public class About extends javax.swing.JDialog {
     private static final ResourceBundle guiTexts = ResourceBundle.getBundle("pl/prv/rrrekin/pbi/gui");
-    HyperlinkListener clickEnabler=new HyperlinkListener() {
+    private transient HyperlinkListener clickEnabler=new HyperlinkListener() {
                     @Override
                     public void hyperlinkUpdate(HyperlinkEvent e) {
                         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {

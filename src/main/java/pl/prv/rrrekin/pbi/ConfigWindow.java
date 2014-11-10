@@ -15,6 +15,7 @@
  */
 package pl.prv.rrrekin.pbi;
 
+import java.awt.HeadlessException;
 import java.io.IOException;
 import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
@@ -63,6 +64,10 @@ public class ConfigWindow extends javax.swing.JDialog {
     }
     
     private void initialize(){
+        initComponents();
+    }
+
+    private Configuration getValidConfig() throws HeadlessException {
         try {
             config = new pl.prv.rrrekin.pbi.Configuration(pl.prv.rrrekin.pbi.Configuration.getInstance());
         } catch (IOException ex) {
@@ -72,7 +77,7 @@ public class ConfigWindow extends javax.swing.JDialog {
                     JOptionPane.ERROR_MESSAGE);
             config = new Configuration();
         }
-        initComponents();
+        return config;
     }
 
     /**
@@ -84,7 +89,7 @@ public class ConfigWindow extends javax.swing.JDialog {
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        config = config;
+        config = getValidConfig();
         label1 = new java.awt.Label();
         label2 = new java.awt.Label();
         label3 = new java.awt.Label();

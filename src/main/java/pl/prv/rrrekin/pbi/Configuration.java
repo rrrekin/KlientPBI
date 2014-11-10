@@ -94,7 +94,7 @@ public class Configuration {
         serverBaseUrl = o.serverBaseUrl;
         timeout = o.timeout;
         threads = o.threads;
-        maxCacheDays=o.maxCacheDays;
+        maxCacheDays = o.maxCacheDays;
     }
 
     /**
@@ -103,7 +103,7 @@ public class Configuration {
      * @throws java.io.IOException if any.
      * @return a {@link pl.prv.rrrekin.pbi.Configuration} object.
      */
-    public static Configuration getInstance() throws IOException {
+    synchronized public static Configuration getInstance() throws IOException {
         if (instance == null) {
             instance = new Configuration();
             try {
@@ -157,12 +157,12 @@ public class Configuration {
      */
     public void read() throws IOException {
         Properties props = new Properties();
-        InputStream is;
 
         // First try loading from the current directory
         File file = Util.CONFIG_FILE;
-        is = new FileInputStream(file);
-        props.load(is);
+        try (InputStream is = new FileInputStream(file)) {
+            props.load(is);
+        }
 
         //        try {
 //            if (is == null) {
@@ -178,7 +178,7 @@ public class Configuration {
         } catch (MalformedURLException ex) {
         }
         try {
-            timeout = new Integer(props.getProperty(PARAM_TIMEOUT, timeout.toString()));
+            timeout = Integer.valueOf(props.getProperty(PARAM_TIMEOUT, timeout.toString()));
         } catch (NumberFormatException ex) {
         }
         try {
@@ -200,8 +200,9 @@ public class Configuration {
     public void save() throws IOException {
         Properties props = buildProperties();
         File file = Util.CONFIG_FILE;
-        OutputStream out = new FileOutputStream(file);
-        props.store(out, "");
+        try (OutputStream out = new FileOutputStream(file)) {
+            props.store(out, "");
+        }
     }
 
     /**

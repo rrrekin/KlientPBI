@@ -4,7 +4,7 @@
   <NonVisualComponents>
     <Component class="pl.prv.rrrekin.pbi.Configuration" name="config">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="config"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="getValidConfig()"/>
       </AuxValues>
     </Component>
   </NonVisualComponents>

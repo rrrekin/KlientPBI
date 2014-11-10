@@ -62,7 +62,7 @@ public class MainWindow extends javax.swing.JFrame {
     private List<PbiBookEntry> searchResult = new ArrayList<>();
     private static final long serialVersionUID = 1L;
     private SearchResultModel resultTableModel = new SearchResultModel(searchResult);
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final static Log LOGGER = LogFactory.getLog(MainWindow.class);
 
     /**
      * Creates new form MainWindow
@@ -83,20 +83,19 @@ public class MainWindow extends javax.swing.JFrame {
             InputStream in = con.getInputStream();
             String encoding = con.getContentEncoding();
             encoding = encoding == null ? "UTF-8" : encoding;
-//            String latestVersion = null;
             String latestVersion = IOUtils.toString(in, encoding).trim();
             String currentVersion = MainWindow.class.getPackage().getImplementationVersion();
             if (latestVersion != null && !latestVersion.equals(currentVersion)) {
                 downloadNewVersion.setText(String.format(guiTexts.getString("NEW_VERSION_AVAILABLE"), latestVersion));
                 downloadNewVersion.setVisible(true);
             } else {
-                logger.debug("Removing version button");
+                LOGGER.debug("Removing version button");
                 downloadNewVersion.setVisible(false);
             }
         } catch (MalformedURLException ex) {
-            logger.error("Malformed URL", ex);
+            LOGGER.error("Malformed URL", ex);
         } catch (IOException ex) {
-            logger.error("Communication error", ex);
+            LOGGER.error("Communication error", ex);
         }
         List<Image> icons = new ArrayList<>();
         for (String iconFile : "klient_pbi-16.png,klient_pbi-20.png,klient_pbi-32.png,klient_pbi-64.png,klient_pbi-128.png".split(
@@ -109,9 +108,9 @@ public class MainWindow extends javax.swing.JFrame {
         resultTable.getColumnModel().getColumn(1).setPreferredWidth(prefs.getInt("c2", 150));
         getRootPane().setDefaultButton(searchButton);
         try {
-            logger.info("Started. Using URL " + Configuration.getInstance().getServerBaseUrl());
+            LOGGER.info("Started. Using URL " + Configuration.getInstance().getServerBaseUrl());
         } catch (IOException ex) {
-            logger.error(ex.getLocalizedMessage());
+            LOGGER.error(ex.getLocalizedMessage());
             JOptionPane.showMessageDialog(null, guiTexts.getString("CONFIG_FILE_ERROR") + "\n" + ex.getLocalizedMessage(),
                     guiTexts.getString("CONFIG_ERROR"), JOptionPane.ERROR_MESSAGE);
         }
@@ -379,7 +378,7 @@ public class MainWindow extends javax.swing.JFrame {
                 try {
                     searchResult = get();
                 } catch (Exception ex) {
-                    logger.error("Fetch error", ex);
+                    LOGGER.error("Fetch error", ex);
                     JOptionPane.showMessageDialog(null, guiTexts.getString("FETCH_ERROR") + "\n" + ex.getLocalizedMessage(),
                             guiTexts.getString("CONFIG_ERROR"), JOptionPane.ERROR_MESSAGE
                     );
@@ -395,8 +394,6 @@ public class MainWindow extends javax.swing.JFrame {
                 loadingIcon.setVisible(false);
             }
         }).execute();
-
-//            resultTable.repaint();
 
     }//GEN-LAST:event_searchButtonActionPerformed
 
@@ -429,7 +426,7 @@ public class MainWindow extends javax.swing.JFrame {
             dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);
         } catch (Exception ex) {
-            logger.warn("Ubanable to get selected book.", ex);
+            LOGGER.warn("Ubanable to get selected book.", ex);
         }
     }
 
@@ -463,10 +460,16 @@ public class MainWindow extends javax.swing.JFrame {
                 if (file.isDirectory()) {
                     removeDir(file);
                 } else {
-                    file.delete();
+                    if (!file.delete()) {
+                        JOptionPane.showMessageDialog(this, guiTexts.getString("CANNOT_DELETE_FILE") + ": " + file.
+                                getAbsolutePath(), guiTexts.getString("CANNOT_DELETE_FILE"), JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
-            Util.CACHE_IMAGES.mkdirs();
+            if (!Util.CACHE_IMAGES.mkdirs()) {
+                JOptionPane.showMessageDialog(this, guiTexts.getString("CANNOT_CREATE_DIRECTORY") + ": " + Util.CACHE_IMAGES.
+                        getAbsolutePath(), guiTexts.getString("CANNOT_CREATE_DIRECTORY"), JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_mClearAllCacheActionPerformed
 
@@ -482,7 +485,8 @@ public class MainWindow extends javax.swing.JFrame {
             try {
                 desktop.browse(new URI("http://rrrekin.github.io/KlientPBI/"));
             } catch (Exception e) {
-                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, guiTexts.getString("PROBLEM_WHEN_LAUNCHING_BROWSER"),
+                        guiTexts.getString("APPLICATION_ERROR"), JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_downloadNewVersionActionPerformed
@@ -496,24 +500,6 @@ public class MainWindow extends javax.swing.JFrame {
             }
         }
         path.delete();
-    }
-
-    private JPanel loadingPanel() {
-        JPanel panel = new JPanel();
-        BoxLayout layoutMgr = new BoxLayout(panel, BoxLayout.PAGE_AXIS);
-        panel.setLayout(layoutMgr);
-
-        ClassLoader cldr = this.getClass().getClassLoader();
-        java.net.URL imageURL = cldr.getResource("pl/prv/rrrekin/pbi/loading.gif");
-        ImageIcon imageIcon = new ImageIcon(imageURL);
-        JLabel iconLabel = new JLabel();
-        iconLabel.setIcon(imageIcon);
-        imageIcon.setImageObserver(iconLabel);
-
-        JLabel label = new JLabel(guiTexts.getString("LOADING"));
-        panel.add(iconLabel);
-        panel.add(label);
-        return panel;
     }
 
     /**
@@ -546,70 +532,8 @@ public class MainWindow extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        Runtime.getRuntime().addShutdownHook(new Thread("CleanCache") {
-
-            @Override
-            public void run() {
-                try {
-                    int days = Configuration.getInstance().getMaxCacheDays();
-                    final FileTime oldest = FileTime.fromMillis(System.currentTimeMillis() - 1000 * 60 * 60 * 24 * days);
-                    File[] cacheFiles = Util.CACHE_DIR.listFiles(new FileFilter() {
-
-                        @Override
-                        public boolean accept(File f) {
-                            boolean older = false;
-//
-                            try {
-                                FileTime modTime = Files.getLastModifiedTime(f.toPath());
-                                if (modTime.compareTo(oldest) < 0) {
-                                    older = true;
-                                }
-                            } catch (IOException ex) {
-                            }
-                            boolean isFile = f.isFile();
-                            final boolean isDigitOnly = f.getName().matches("\\d*");
-                            return isDigitOnly && older && isFile;
-                        }
-                    });
-                    
-                    for (Object f : cacheFiles) {
-                        // Remove cache file and images
-                        if (f instanceof Path) {
-                            Path path = (Path) f;
-                            path.toFile().delete();
-                            File imagesDir = new File(Util.CACHE_IMAGES, path.toFile().getName());
-                            Files.walkFileTree(imagesDir.toPath(), new FileVisitor<Path>() {
-
-                                @Override
-                                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                                    return FileVisitResult.CONTINUE;
-                                }
-
-                                @Override
-                                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                                    file.toFile().delete();
-                                    return FileVisitResult.CONTINUE;
-                                }
-
-                                @Override
-                                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-
-                                    return FileVisitResult.CONTINUE;
-                                }
-
-                                @Override
-                                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                                    dir.toFile().delete();
-                                    return FileVisitResult.CONTINUE;
-                                }
-                            });
-
-                        }
-                    }
-                } catch (IOException ex) {
-                }
-            }
-        });
+        // Install cache clearing hook
+        Runtime.getRuntime().addShutdownHook(new CacheClearingThread());
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -656,4 +580,73 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton searchButton;
     private javax.swing.JTextField searchTitle;
     // End of variables declaration//GEN-END:variables
+
+    private static class CacheClearingThread extends Thread {
+
+        public CacheClearingThread() {
+            super("CleanCache");
+        }
+
+        @Override
+        public void run() {
+            try {
+                int days = Configuration.getInstance().getMaxCacheDays();
+                final FileTime oldest = FileTime.fromMillis(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * days);
+                File[] cacheFiles = Util.CACHE_DIR.listFiles(new FileFilter() {
+
+                    @Override
+                    public boolean accept(File f) {
+                        boolean older = false;
+//
+                        try {
+                            FileTime modTime = Files.getLastModifiedTime(f.toPath());
+                            if (modTime.compareTo(oldest) < 0) {
+                                older = true;
+                            }
+                        } catch (IOException ex) {
+                        }
+                        boolean isFile = f.isFile();
+                        final boolean isDigitOnly = f.getName().matches("\\d*");
+                        return isDigitOnly && older && isFile;
+                    }
+                });
+
+                for (Object f : cacheFiles) {
+                    // Remove cache file and images
+                    if (f instanceof Path) {
+                        Path path = (Path) f;
+                        path.toFile().delete();
+                        File imagesDir = new File(Util.CACHE_IMAGES, path.toFile().getName());
+                        Files.walkFileTree(imagesDir.toPath(), new FileVisitor<Path>() {
+
+                            @Override
+                            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                                return FileVisitResult.CONTINUE;
+                            }
+
+                            @Override
+                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                                file.toFile().delete();
+                                return FileVisitResult.CONTINUE;
+                            }
+
+                            @Override
+                            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+
+                                return FileVisitResult.CONTINUE;
+                            }
+
+                            @Override
+                            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                                dir.toFile().delete();
+                                return FileVisitResult.CONTINUE;
+                            }
+                        });
+
+                    }
+                }
+            } catch (IOException ex) {
+            }
+        }
+    }
 }

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -43,7 +44,8 @@ public class Changelog extends javax.swing.JDialog {
 //        changelogPane.setSelectionStart(0);
 //        changelogPane.setSelectionEnd(0);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, guiTexts.getString("NO_CHANGELOG"),
+                    guiTexts.getString("APPLICATION_ERROR"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -58,7 +60,8 @@ public class Changelog extends javax.swing.JDialog {
 //        changelogPane.setSelectionStart(0);
 //        changelogPane.setSelectionEnd(0);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, guiTexts.getString("NO_CHANGELOG"),
+                    guiTexts.getString("APPLICATION_ERROR"), JOptionPane.ERROR_MESSAGE);
         }
     }
 

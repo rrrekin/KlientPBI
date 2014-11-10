@@ -134,9 +134,6 @@
             </Property>
             <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
             <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0&quot;&gt;&#xa;      &lt;a href=&quot;http://rrrekin.github.io/KlientPBI/&quot;&gt;http://rrrekin.github.io/KlientPBI/&lt;/a&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;" noResource="true"/>
-            <Property name="UI" type="javax.swing.plaf.TextUI" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="default"/>
-            </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="homepageField" noResource="true"/>
           </Properties>
@@ -172,9 +169,6 @@
             </Property>
             <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
             <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0;&quot;&gt;&#xa;      &lt;a href=&quot;https://github.com/rrrekin/KlientPBI/issues&quot;&gt;https://github.com/rrrekin/KlientPBI/issues&lt;/a&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;" noResource="true"/>
-            <Property name="UI" type="javax.swing.plaf.TextUI" editor="org.netbeans.modules.form.ComponentChooserEditor">
-              <ComponentRef name="default"/>
-            </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="supportLink" noResource="true"/>
             <Property name="opaque" type="boolean" value="false"/>

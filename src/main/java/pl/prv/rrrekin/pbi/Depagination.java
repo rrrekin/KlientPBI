@@ -38,7 +38,7 @@ public enum Depagination {
     }
 
     public static String[] localValues() {
-        return names;
+        return names.clone();
     }
 
     static Depagination fromLocalName(String val) {

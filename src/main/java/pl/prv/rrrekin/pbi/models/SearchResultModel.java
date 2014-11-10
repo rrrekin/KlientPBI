@@ -111,7 +111,7 @@ public class SearchResultModel implements TableModel {
         } else if(columnIndex == 1){
             return entry.getTitle();
         } else {
-            return new Integer(entry.getId());
+            return entry.getId();
         }
     }
 

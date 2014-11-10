@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
@@ -37,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.text.html.HTML;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -101,7 +104,11 @@ public class BookDownloader {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             unmarshaller = jaxbContext.createUnmarshaller();
         } catch (JAXBException ex) {
-            ex.printStackTrace();
+            final StringWriter sw = new StringWriter();
+            final PrintWriter pw=new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            JOptionPane.showMessageDialog(null, sw.toString(),
+                    guiTexts.getString("APPLICATION_ERROR"), JOptionPane.ERROR_MESSAGE);
 //            System.exit(2);
         }
     }
